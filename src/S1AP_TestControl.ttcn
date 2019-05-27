@@ -1,0 +1,214 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL:$
+ *              $Id:$
+ *    @desc     This module provides execution part for S1AP test cases.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_TestControl {
+    
+    // S1AP
+    import from S1AP_Pics all;
+    import from S1AP_TestCases all;
+    
+    control {
+        
+        if (PICS_S1AP_eNB_IUT) {
+            // ETSI TS 103 497-2 Clause 5.2.2.1.2    E-RAB management group
+            execute(TC_S1AP_eNB_RAB_01());
+            execute(TC_S1AP_eNB_RAB_02());
+            execute(TC_S1AP_eNB_RAB_03());
+            execute(TC_S1AP_eNB_RAB_04());
+            execute(TC_S1AP_eNB_RAB_05());
+            execute(TC_S1AP_eNB_RAB_06());
+            execute(TC_S1AP_eNB_RAB_07());
+            execute(TC_S1AP_eNB_RAB_08());
+            execute(TC_S1AP_eNB_RAB_09());
+            execute(TC_S1AP_eNB_RAB_10());
+            execute(TC_S1AP_eNB_RAB_11());
+            execute(TC_S1AP_eNB_RAB_12());
+            execute(TC_S1AP_eNB_RAB_13());
+            execute(TC_S1AP_eNB_RAB_14());
+            execute(TC_S1AP_eNB_RAB_15());
+            execute(TC_S1AP_eNB_RAB_16());
+            execute(TC_S1AP_eNB_RAB_17());
+            execute(TC_S1AP_eNB_RAB_18());
+            execute(TC_S1AP_eNB_RAB_19());
+            execute(TC_S1AP_eNB_RAB_20());
+            execute(TC_S1AP_eNB_RAB_21());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.3    Context management group
+            execute(TC_S1AP_eNB_CMP_01());
+            execute(TC_S1AP_eNB_CMP_02());
+            execute(TC_S1AP_eNB_CMP_03());
+            execute(TC_S1AP_eNB_CMP_04());
+            execute(TC_S1AP_eNB_CMP_05());
+            execute(TC_S1AP_eNB_CMP_06());
+            execute(TC_S1AP_eNB_CMP_07());
+            execute(TC_S1AP_eNB_CMP_08());
+            execute(TC_S1AP_eNB_CMP_09());
+            execute(TC_S1AP_eNB_CMP_10());
+            execute(TC_S1AP_eNB_CMP_11());
+            execute(TC_S1AP_eNB_CMP_12());
+            execute(TC_S1AP_eNB_CMP_13());
+            execute(TC_S1AP_eNB_CMP_14());
+            execute(TC_S1AP_eNB_CMP_15());
+            execute(TC_S1AP_eNB_CMP_16());
+            execute(TC_S1AP_eNB_CMP_17());
+            execute(TC_S1AP_eNB_CMP_18());
+            execute(TC_S1AP_eNB_CMP_19());
+            // ETSI DTS/INT-00135-2 Clause 5.2.2.1.4  Handover signalling group
+            execute(TC_S1AP_eNB_HAS_01());
+            execute(TC_S1AP_eNB_HAS_02());
+            execute(TC_S1AP_eNB_HAS_03());
+            execute(TC_S1AP_eNB_HAS_04());
+            execute(TC_S1AP_eNB_HAS_05());
+            execute(TC_S1AP_eNB_HAS_06());
+            execute(TC_S1AP_eNB_HAS_07());
+            execute(TC_S1AP_eNB_HAS_08());
+            execute(TC_S1AP_eNB_HAS_09());
+            execute(TC_S1AP_eNB_HAS_10());
+            execute(TC_S1AP_eNB_HAS_11());
+            execute(TC_S1AP_eNB_HAS_12());
+            execute(TC_S1AP_eNB_HAS_13());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.6    NAS transport group
+            execute(TC_S1AP_eNB_NAS_01());
+            execute(TC_S1AP_eNB_NAS_02());
+            execute(TC_S1AP_eNB_NAS_03());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.7 Management group
+            execute(TC_S1AP_eNB_MNP_01());
+            execute(TC_S1AP_eNB_MNP_02());
+            execute(TC_S1AP_eNB_MNP_03());
+            execute(TC_S1AP_eNB_MNP_04());
+            execute(TC_S1AP_eNB_MNP_05());
+            execute(TC_S1AP_eNB_MNP_06());
+            execute(TC_S1AP_eNB_MNP_07());
+            execute(TC_S1AP_eNB_MNP_08());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.8 S1 CDMA 2000 tunnelling group
+            execute(TC_S1AP_eNB_STP_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.9 UE capability info indication group
+            execute(TC_S1AP_eNB_UEC_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.10    Trace group
+            execute(TC_S1AP_eNB_TRP_01());
+            execute(TC_S1AP_eNB_TRP_02());
+            execute(TC_S1AP_eNB_TRP_03());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.11    Location reporting group
+            execute(TC_S1AP_eNB_LRP_01());
+            execute(TC_S1AP_eNB_LRP_02());
+            execute(TC_S1AP_eNB_LRP_03());
+            execute(TC_S1AP_eNB_LRP_04());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.12    Warning message transmission group
+            execute(TC_S1AP_eNB_WTP_01());
+            execute(TC_S1AP_eNB_WTP_02());
+            execute(TC_S1AP_eNB_WTP_03());
+            execute(TC_S1AP_eNB_WTP_04());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.13    eNB direct information transfer group
+            execute(TC_S1AP_eNB_EIT_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.16   eNB configuration transfer group
+            execute(TC_S1AP_eNB_ECT_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.17  LPPa transport group
+            execute(TC_S1AP_eNB_LPP_01());
+            execute(TC_S1AP_eNB_LPP_02());
+            // ETSI TS 103 497-2 Clause 5.2.2.1.18   Unknown, Unforseen and Erroneous Protocol Data group 
+            execute(TC_S1AP_ENB_ERR_01());
+            execute(TC_S1AP_ENB_ERR_02());
+            execute(TC_S1AP_ENB_ERR_03());
+            execute(TC_S1AP_ENB_ERR_04());
+            execute(TC_S1AP_ENB_ERR_05());
+            execute(TC_S1AP_ENB_ERR_06());
+            execute(TC_S1AP_ENB_ERR_07());
+            execute(TC_S1AP_ENB_ERR_08());
+        }
+        if (PICS_S1AP_MME_IUT) {
+            // ETSI TS 103 497-2 Clause 5.2.2.2.2    E-RAB management group
+            execute(TC_S1AP_MME_RAB_01());
+            execute(TC_S1AP_MME_RAB_02());
+            execute(TC_S1AP_MME_RAB_03());
+            execute(TC_S1AP_MME_RAB_04());
+            execute(TC_S1AP_MME_RAB_05());
+            execute(TC_S1AP_MME_RAB_06());
+            execute(TC_S1AP_MME_RAB_07());
+            execute(TC_S1AP_MME_RAB_08());
+            execute(TC_S1AP_MME_RAB_09());
+            execute(TC_S1AP_MME_RAB_10());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.3    Context management group
+            execute(TC_S1AP_MME_CMP_01());
+            execute(TC_S1AP_MME_CMP_02());
+            execute(TC_S1AP_MME_CMP_03());
+            execute(TC_S1AP_MME_CMP_04());
+            execute(TC_S1AP_MME_CMP_05());
+            execute(TC_S1AP_MME_CMP_06());
+            execute(TC_S1AP_MME_CMP_07());
+            execute(TC_S1AP_MME_CMP_08());
+            execute(TC_S1AP_MME_CMP_09());
+            execute(TC_S1AP_MME_CMP_10());
+            execute(TC_S1AP_MME_CMP_11());
+            // ETSI DTS/INT-00135-2 Clause 5.2.2.2.4  Handover signalling group
+            execute(TC_S1AP_MME_HAS_01());
+            execute(TC_S1AP_MME_HAS_02());
+            execute(TC_S1AP_MME_HAS_03());
+            execute(TC_S1AP_MME_HAS_04());
+            execute(TC_S1AP_MME_HAS_05());
+            execute(TC_S1AP_MME_HAS_06());
+            execute(TC_S1AP_MME_HAS_07());
+            execute(TC_S1AP_MME_HAS_08());
+            execute(TC_S1AP_MME_HAS_09());
+            execute(TC_S1AP_MME_HAS_10());
+            execute(TC_S1AP_MME_HAS_11());
+            execute(TC_S1AP_MME_HAS_12());
+            execute(TC_S1AP_MME_HAS_13());
+            execute(TC_S1AP_MME_HAS_14());
+            execute(TC_S1AP_MME_HAS_15());
+            execute(TC_S1AP_MME_HAS_16());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.5   Paging group
+            execute(TC_S1AP_MME_PAG_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.6    NAS transport group
+            execute(TC_S1AP_MME_NAS_01());
+            execute(TC_S1AP_MME_NAS_02());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.7 Management group
+            execute(TC_S1AP_MME_MNP_01());
+            execute(TC_S1AP_MME_MNP_02());
+            execute(TC_S1AP_MME_MNP_03());
+            execute(TC_S1AP_MME_MNP_04());
+            execute(TC_S1AP_MME_MNP_05());
+            execute(TC_S1AP_MME_MNP_06());
+            execute(TC_S1AP_MME_MNP_07());
+            execute(TC_S1AP_MME_MNP_08());
+            execute(TC_S1AP_MME_MNP_09());
+            execute(TC_S1AP_MME_MNP_10());
+            execute(TC_S1AP_MME_MNP_11());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.8 S1 CDMA 2000 tunnelling group
+            execute(TC_S1AP_MME_STP_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.10    Trace group
+            execute(TC_S1AP_MME_TRP_01());
+            execute(TC_S1AP_MME_TRP_02());
+            //execute(TC_S1AP_MME_TRP_03()); Identical to TC_S1AP_MME_TRP_02
+            // ETSI TS 103 497-2 Clause 5.2.2.2.11    Location reporting group
+            execute(TC_S1AP_MME_LRP_01());
+            execute(TC_S1AP_MME_LRP_02());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.12    Warning message transmission group
+            execute(TC_S1AP_MME_WTP_01());
+            execute(TC_S1AP_MME_WTP_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.14    MME direct information transfer group
+            execute(TC_S1AP_MME_MIT_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.16   MME configuration transfer group
+            execute(TC_S1AP_MME_MCT_01());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.17  LPPa transport group
+            execute(TC_S1AP_MME_LPP_01());
+            execute(TC_S1AP_MME_LPP_02());
+            // ETSI TS 103 497-2 Clause 5.2.2.2.18   Unknown, Unforseen and Erroneous Protocol Data group 
+            execute(TC_S1AP_MME_ERR_01());
+            execute(TC_S1AP_MME_ERR_02());
+            execute(TC_S1AP_MME_ERR_03());
+            execute(TC_S1AP_MME_ERR_04());
+            execute(TC_S1AP_MME_ERR_05());
+            execute(TC_S1AP_MME_ERR_06());
+            execute(TC_S1AP_MME_ERR_07());
+        }
+        
+    } // End of 'Control' statement
+
+} // End of module S1AP_TestControl 

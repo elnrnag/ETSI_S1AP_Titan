@@ -1,0 +1,273 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL:$
+ *              $Id:$
+ *    @desc     This module provides PixitS used by the test component for S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module LibS1AP_Pixits {
+    
+    // LibCommon
+    import from LibCommon_DataStrings all;
+    
+    // LibS1AP
+    import from S1AP_IEs language "ASN.1:1997" all;
+    import from S1AP_CommonDataTypes language "ASN.1:1997" all;
+    
+    /**
+     * @desc Define the network transportation layer
+     */
+    type enumerated TransportProtocol {
+        UDP_E,
+        TCP_E,
+        SCTP_E
+    }
+    
+    /**
+     * @desc Network transportation layer setting
+     */
+    group S1AP_Pixit_Parameters {
+        
+        /** 
+         * @desc    boolean (This is an operator option, not a protocol option), True, if IPv6 addresses are used
+         */
+        modulepar boolean PX_IPv6     := false;
+        
+        /** 
+         * @desc enumerated (This is an operator option, not a protocol option)
+         */
+        modulepar TransportProtocol PX_S1AP_TRANSPORT_PROTOCOL := SCTP_E;
+        
+    } // End of group S1AP_Pixit_Parameters
+    
+    /**
+     * @desc Network transportation layer timers
+     */
+    group S1AP_Timers {
+        
+        /** @desc float for TWait default value for waiting an operator action
+         */
+        modulepar float    PX_S1AP_TWAIT:= 30.0;
+        
+    }  // End of group S1AP_Timers
+    
+    /** 
+     * @desc The PLMNidentity indicates the PLMN Identity (Public land mobile network).
+     * @see ETSI TS 136 413 Clause 9.2.3.8 PLMN Identity
+     */
+    modulepar PLMNidentity PX_PLMN_IDENTITY := '000000'O;
+    
+    /** 
+     * @desc An unknown PLMNidentity indicates the PLMN Identity (Public land mobile network).
+     * @see ETSI TS 136 413 Clause 9.2.3.8 PLMN Identity
+     */
+    modulepar PLMNidentity PX_PLMN_IDENTITY_UNKNOWN := 'f00000'O;
+    
+    /** 
+     * @desc eNB Identity.
+     * @see ETSI TS 136 413 Clause 9.2.1.37 Global eNB ID
+     */
+    modulepar ENB_ID PX_eNB_ID := {
+        homeENB_ID := '0000000000000000000000000000'B
+    };
+    
+    /** 
+     * @desc eNB Identity.
+     * @see ETSI TS 136 413 Clause 9.2.1.37 Global eNB ID
+     */
+    modulepar ENB_ID PX_eNB_ID_UNKNOWN := {
+        homeENB_ID := '1100000000000000000000000000'B
+    };
+    
+    /** 
+     * @desc Cell Identity.
+     */
+    modulepar CellIdentity PX_CELL_ID := '0000000000000000000000000000'B;
+    
+    /** 
+     * @desc The TAC is used to uniquely identify a Tracking Area Code.
+     * @see ETSI TS 136 413 Clause 9.2.3.7 TAC
+     */
+    modulepar TAC PX_TACode := '0000'O;
+    
+    /** 
+     * @desc The MME Group ID.
+     */
+    modulepar MME_Group_ID PX_MME_GROUP_ID := '0000'O;
+    
+    /** 
+     * @desc The MME Code to uniquely identify an MME within an MME pool area.
+     * @see ETSI TS 136 413 Clause 9.2.3.12 MMEC
+     */
+    modulepar MME_Code PX_MME_CODE := '01'O;
+    
+    /** 
+     * @desc The relative processing capacity of an MME with respect to the other MMEs in the pool in order to load-balance MMEs within a pool defined in TS 23.401.
+     * @see ETSI TS 136 413 Clause 9.2.3.17 Relative MME Capacity
+     */
+    modulepar RelativeMMECapacity PX_RELATIVE_MME_CAPACITY := 128;
+    
+    /** 
+     * @desc The Message Identifier IE identifies a warning message.
+     * @see ETSI TS 136 413 Clause 9.2.1.44 Message Identifier
+     */
+    modulepar MessageIdentifier PX_MESSAGE_IDENTIFIER := oct2bit('0000'O);
+    
+    /** 
+     * @desc The Serial Number IE identifies a particular message from the source and type indicated by the Message Identifie.
+     * @see ETSI TS 136 413 Clause 9.2.1.45 Serial Number
+     */
+    modulepar SerialNumber PX_SERIAL_NUMBER := oct2bit('0000'O);
+    
+    /** 
+     * @desc The Repetition Period IE indicates the periodicity of the warning message to be broadcast.
+     * @see ETSI TS 136 413 Clause 9.2.1.48 Repetition Period
+     */
+    modulepar RepetitionPeriod PX_REPETITION_PERIOD := 1;
+    
+    /** 
+     * @desc The Number of Broadcast Requested IE indicates the number of times a message is to be broadcast.
+     * @see ETSI TS 136 413 Clause 9.2.1.49 Number of Broadcasts Requested
+     */
+    modulepar NumberOfBroadcasts PX_NUMBER_OF_BROADCASTS_REQUESTED := 1;
+    
+    /** 
+     * @desc The Emergency Area ID IE is used to indicate the area which has the emergency impact.
+     * @see ETSI TS 136 413 Clause 9.2.1.47 Emergency Area ID
+     */
+    modulepar EmergencyAreaID PX_EMERGENCY_AREA_ID := '000000'O;
+    
+    /** 
+     * @desc Event Type.
+     * @see ETSI TS 136 413 Clause 9.2.1.34 Request Type
+     */
+    modulepar EventType PX_EVENT_TYPE := direct;
+    
+    /** 
+     * @desc Report Area.
+     * @see ETSI TS 136 413 Clause 9.2.1.34 Request Type
+     */
+    modulepar ReportArea PX_REPORT_AREA := ecgi;
+    
+    /** 
+     * @desc The E-UTRAN Trace ID.
+     * @see ETSI TS 136 413 Clause 9.2.1.4 Trace Activation
+     */
+    modulepar E_UTRAN_Trace_ID PX_EUTRAN_TRACE_ID := '0000000000000000'O;
+    
+    /** 
+     * @desc The interfaces to trace.
+     * @see ETSI TS 136 413 Clause 9.2.1.4 Trace Activation
+     */
+    modulepar InterfacesToTrace PX_INTERFACES_TO_TRACE := '00000000'B;
+    
+    /** 
+     * @desc The trace depth.
+     * @see ETSI TS 136 413 Clause 9.2.1.4 Trace Activation
+     */
+    modulepar TraceDepth PX_TRACE_DEPTH := medium;
+    
+    /** 
+     * @desc Transport Layer Address.
+     * @see ETSI TS 136 413 Clause 9.2.2.1 Transport Layer Address
+     */
+    modulepar TransportLayerAddress PX_TRANSPORT_LAYER_ADDRESS := oct2bit('0a00000a'O);
+    
+    /** @desc CDMA2000 message
+     * @see ETSI TS 136 413 Clause 9.2.1.23 CDMA2000-PDU
+     */
+    modulepar octetstring PX_CDMA200_PDU := ''O;
+    
+    /** @desc CDMA2000 RAT type
+     * @see ETSI TS 136 413 Clause 9.2.1.24 CDMA2000 RAT Type
+     */
+    modulepar Cdma2000RATType PX_CDMA200_RAT_TYPE := hRPD;
+    
+    /** @desc CDMA2000 Reference Cell ID
+     * @see ETSI TS 136 413 Clause 9.2.1.25 CDMA2000 Sector ID
+     */
+    modulepar octetstring PX_CDMA200_SECTOR_ID := ''O;
+    
+    /** @desc The Paging DRX as defined in TS 36.304.
+     * @see ETSI TS 136 413 Clause 9.2.1.16 Paging DRX
+     */
+    modulepar PagingDRX PX_PAGING_DRX := v256;
+    
+    /** @desc The identifier of the Closed Subscriber Group, as defined in TS 23.003.
+     * @see ETSI TS 136 413 Clause 9.2.1.62 CSG Id
+     */
+    modulepar Bit27 PX_CSG_ID := '000000000000000000000000000'B;
+    
+    /** @desc The UE Identity Index value IE is used by the eNB to calculate the Paging Frame TS 36.304.
+     * @see ETSI TS 136 413 Clause 9.2.3.10 UE Identity Index value
+     */
+    modulepar UEIdentityIndexValue PX_UE_IDENTITY_INDEX_VALUE := '0000000000'B;
+    
+    /** @desc The International Mobile Subscriber Identity, which is commonly used to identify the UE in the CN.
+     * @see ETSI TS 136 413 Clause 9.2.3.11 IMSI
+     */
+    modulepar IMSI PX_IMSI := '000000'O;
+    
+    /** @desc Indicates whether Paging is originated from the CS or PS domain.
+     * @see ETSI TS 136 413 Clause 9.2.3.22 CN Domain
+     */
+    modulepar CNDomain PX_CNDOMAIN := ps;
+    
+    /** @desc Indicates a not supported algorithm.
+     * @see ETSI TS 136 413 Clause 9.2.1.40 UE Security Capabilities
+     */
+    modulepar EncryptionAlgorithms PX_UNSUPPORTED_ENCRYPTION_ALGORITHM := '1111111111111111'B;
+    
+    /** @desc Indicates a supported encription algorithm.
+     * @see ETSI TS 136 413 Clause 9.2.1.40 UE Security Capabilities
+     */
+    modulepar EncryptionAlgorithms PX_ENCRYPTION_ALGORITHM := '0101010101010101'B;
+    
+    /** @desc Indicates a supported integrity protection algorithm.
+     * @see ETSI TS 136 413 Clause 9.2.1.40 UE Security Capabilities
+     */
+    modulepar IntegrityProtectionAlgorithms PX_INTEGRITY_PROTECTION_ALGORITHM := '0101010101010101'B;
+    
+    /** @desc Indicates the procedure value.
+     * @see ETSI TS 136 413 Clause 9.2.1.21 Criticality Diagnostics
+     */
+    modulepar ProcedureCode PX_PROCEURE_CODE := 0;
+    
+    /** @desc Indicates triggering message value
+     * @see ETSI TS 136 413 Clause 9.2.1.21 Criticality Diagnostics
+     */
+    modulepar TriggeringMessage PX_TRIGGERING_CODE := initiating_message;
+    
+    /** @desc Indicates a the criticality
+     * @see ETSI TS 136 413 Clause 9.2.1.21 Criticality Diagnostics
+     */
+    modulepar Criticality PX_CRITICALITY := ignore;
+    
+    /** @desc Indicates the transport layer address.
+     */
+    modulepar TransportLayerAddress PX_TPORT_LAYER_ADDR := '1'B;
+    
+    /** @desc Indicates an unacceptable transport layer address.
+     */
+    modulepar TransportLayerAddress PX_INVALID_TPORT_LAYER_ADDR := '0'B;
+    
+    /** @desc Indicates the Downlink GTP TEID.
+     */
+    modulepar GTP_TEID PX_DL_GTP_TEID := '00000000'O;
+    
+    /** @desc Indicates the source_ToTarget_TransparentContainer value.
+     *  @see ETSI TS 136 413 Clause 9.2.1.56 Source to Target Transparent Container
+     */
+    modulepar Source_ToTarget_TransparentContainer PX_SOURCE_TO_TARGET_TANSPARENT_CONTAINER := '12121212'O;
+    
+    /** @desc Indicates the target_ToSource_TransparentContainer value.
+     *  @see ETSI TS 136 413 Clause 9.2.1.57 Target to Source Transparent Container
+     */
+    modulepar Target_ToSource_TransparentContainer PX_TARGET_TO_SOURCE_TANSPARENT_CONTAINER := '12121212'O;
+    
+} // End of module LibS1AP_Pixits
+

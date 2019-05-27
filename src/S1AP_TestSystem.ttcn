@@ -1,0 +1,50 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL:$
+ *              $Id:$
+ *    @desc     This module provides the types and ports used by the test component for S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_TestSystem {
+    
+    // LibCommon
+    import from LibCommon_Sync all;
+    
+    // LibS1AP
+    import from LibS1AP_Interface all;
+    
+    import from IPL4asp_PortType all;
+
+    group SystemConfiguration {
+        
+        group TestComponents {
+            
+            group TestSystemInterfaces {
+                
+                /**
+                 * @desc  The test system interface
+                 */
+                type component TestAdapter {
+                    
+                   port 
+                       //S1APPort S1AP_MME,
+                       IPL4asp_PT S1AP_MME,
+                       S1AP_eNB_1, 
+                       S1AP_eNB_2
+                } // End of type TestAdapter
+                
+        } // End of group TestSystemInterfaces
+        
+        type component S1AP extends ServerSyncComp, S1APComponent { 
+            
+        } // End of component S1AP
+        
+      } // End of group TestComponents
+      
+    } // End of group SystemConfiguration
+    
+} // End of module S1AP_TestSystem

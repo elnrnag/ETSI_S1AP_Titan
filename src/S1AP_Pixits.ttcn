@@ -1,0 +1,81 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL$
+ *              $Id$
+ *    @desc     This module provides the PIXIT used for the S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_Pixits {
+    
+    // LibS1AP
+    import from S1AP_CommonDataTypes language "ASN.1:1997" all;
+    
+    group S1AP_Port_and_addresses {
+        
+        group S1AP_TS_Port_and_addresses {
+            
+            /** @desc    
+             * IP address of the test system
+             */
+            modulepar charstring PX_S1AP_ETS_IPADDR := "1.1.1.10";
+            
+            /** @desc    
+             * Port number of the test system
+             */
+            modulepar integer PX_S1AP_ETS_PORT := 3868;
+                        
+            /** @desc    
+             * IP address of the test system
+             */
+            modulepar charstring PX_S1AP_ETS_IPADDR2 := "1.1.1.13";
+            
+            /** @desc    
+             * Port number of the test system
+             */
+            modulepar integer PX_S1AP_ETS_PORT2 := 3868;
+
+            
+        } // End of group S1AP_TS_Port_and_addresses
+        
+        group S1AP_SUT_Port_and_addresses {
+            
+            /** @desc    
+             * IP address of the system under test
+             */
+            modulepar charstring PX_S1AP_SUT_IPADDR := "1.1.2.10";
+            
+            /** @desc   
+             * Port number of the system under test
+             */
+            modulepar integer PX_S1AP_SUT_PORT := 3868;
+            
+        } // End of group S1AP_SUT_Port_and_addresses{
+        
+    } // End of group S1AP_Port_and_addresses
+    
+    group S1AP_CommonData {
+               
+        /** 
+        * @desc    integer for variant selection, 
+        * @see ETSI 
+        */
+        modulepar integer PX_VA := 1;
+        
+        /**
+         * @desc Variant for Criticality values
+         */
+        modulepar Criticality PX_VA_CRITICALITY := reject;
+        
+        /** 
+        * @desc    integer for timer TS1RELOCOverall, 
+        * @see ETSI  TS 136 413, chapter 9.5
+        */
+        modulepar float PX_TS1RELOCOverall := 10.0;
+       
+    } // End of group S1AP_CommonData
+    
+} // End of module S1AP_Pixits

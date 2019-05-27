@@ -1,0 +1,139 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL:$
+ *              $Id:$
+ *    @desc     This module provides test component configurations for S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_TestConfiguration {
+    
+    // LibCommon
+    import from LibCommon_Sync all;
+    import from LibCommon_VerdictControl all;
+    
+    // S1AP_Ats
+    import from S1AP_TestSystem all;
+    
+    import from IPL4asp_PortType all;
+    import from IPL4asp_User_CtrlFunct all;
+    import from Socket_API_Definitions all;
+import from IPL4asp_Types all;
+    
+    group cfUp {
+        
+        /**
+         * @desc Creates test configuration of cf_S1AP_MME - eNB is SUT
+         * @param p_S1APComponent_mme
+         */
+        function f_cf_S1AP_MME_Up(
+                                  out S1AP p_S1APComponent_mme
+        ) runs on S1AP system TestAdapter {
+            //Variables
+            var FncRetCode v_ret := e_success;
+            
+            //Create
+            p_S1APComponent_mme := S1AP.create ;
+            
+            // Connect mtc sync port
+            connect(self:syncPort, self:syncPort);
+            // Connect client sync port
+            connect(p_S1APComponent_mme:syncPort, self:syncPort) ;
+            //Map
+            map(p_S1APComponent_mme:S1_MMEeNB_P, system:S1AP_MME);// S1AP Init test Configuration
+            
+            activate(a_mtc_shutdown());
+            
+            f_setVerdict(v_ret);
+        } // End of function f_cf_S1AP_MME_Up
+        
+        /**
+         * @desc Creates test configuration of cf_S1AP_eNB - MME is SUT
+         * @param p_S1APComponent_enb
+         */
+        function f_cf_S1AP_eNB_Up(
+                                  inout S1AP p_S1APComponent_enb
+        ) runs on S1AP system TestAdapter {
+            //Variables
+            var FncRetCode v_ret := e_success;
+            //Create
+            p_S1APComponent_enb := S1AP.create ;
+            
+            // Connect mtc sync port
+            connect(self:syncPort, self:syncPort);
+            // Connect client sync port
+            connect(p_S1APComponent_enb:syncPort, self:syncPort) ;
+            //Map
+            map(p_S1APComponent_enb:S1_MMEeNB_P, system:S1AP_MME);// S1AP Init test Configuration
+            
+            activate(a_mtc_shutdown());
+            
+            f_setVerdict(v_ret);
+        } // End of function f_cf_S1AP_eNB_Up
+        
+        /**
+         * @desc Creates test configuration of cf_S1AP_2eNB - MME is SUT
+         * @param p_S1APComponent_enb1, p_S1APComponent_enb2
+         */
+        function f_cf_S1AP_2eNB_Up(
+                                   out S1AP p_S1APComponent_enb1,
+                                   out S1AP p_S1APComponent_enb2
+        ) runs on S1AP system TestAdapter {
+            //Variables
+            var FncRetCode v_ret := e_success;
+            
+            //Create
+            p_S1APComponent_enb1 := S1AP.create;
+            p_S1APComponent_enb2 := S1AP.create;
+            
+            // Connect mtc sync port
+            connect(self:syncPort, self:syncPort);
+            // Connect client sync port
+            connect(p_S1APComponent_enb1:syncPort, self:syncPort);
+            connect(p_S1APComponent_enb2:syncPort, self:syncPort) ;
+            
+            //Map
+            map(p_S1APComponent_enb1:S1_MMEeNB_P, system:S1AP_eNB_1);// S1AP Init test Configuration
+            map(p_S1APComponent_enb2:S1_MMEeNB_P, system:S1AP_eNB_2);// S1AP Init test Configuration
+            
+            activate(a_mtc_shutdown());
+            
+            f_setVerdict(v_ret);
+        } // End of function f_cf_S1AP_2eNB_Up
+        
+    } // End of group cfUp
+    
+    group cfDown {
+        
+        /**
+         * @desc Deletes configuration
+         * @param 
+         */
+        function f_cf_Down() runs on S1AP system TestAdapter {
+            // Deactivte all
+            deactivate;
+            // Unmap all
+            //unmap;            //Unmap All is not supported by Titan
+            // Disconnect all
+            //disconnect;       //Disconnect All is not supported by Titan
+            
+        } // End of function f_cf_Down
+
+    } // End of group cfDown
+
+    group shutDownAltsteps {
+        
+        altstep a_mtc_shutdown() 
+        runs on SelfSyncComp {
+            [] syncSendPort.receive(m_syncServerStop) {
+                tc_sync.stop ;
+                log("**** a_mtc_shutdown: MTC component received STOP signal **** ");
+            }
+        } // End of altstep a_mtc_shutdown
+        
+    } // End of group shutDownAltsteps
+    
+} // End of module S1AP_TestConfiguration

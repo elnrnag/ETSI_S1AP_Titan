@@ -1,0 +1,79 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL$
+ *              $Id$
+ *    @desc     This module provides the PICS used for the S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_Pics {
+    
+    group PICS_A2 {
+        /**
+         * @desc Does eNB act as the IUT? 
+         * @see  ETSI DTS_INT-00135-1 A.2/1 
+         */
+        modulepar boolean PICS_S1AP_eNB_IUT := true;
+        
+        /**
+         * @desc Does MME act as the IUT? 
+         * @see  ETSI DTS_INT-00135-1 A.2/2 
+         */
+        modulepar boolean PICS_S1AP_MME_IUT := false;
+        
+    } // End of group PICS_A2
+    
+    group PICS_A3 {
+        
+        /**
+         * @desc Does eNB support repetition of the sending of eNB CONFIGURATION UPDATE messages in case of no reply? 
+         * @see  ETSI DTS_INT-00135-1 A.3/6.4.1 
+         */
+        modulepar boolean PICS_S1AP_eNB_REPETITION_SENDING_CONF_UPDATE := false;
+        
+        /**
+         * @desc Does eNB support initiation oft the Error Indication procedure when a transfer syntax error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.3/17.1 
+         */
+        modulepar boolean PICS_S1AP_eNB_INITIATION_ERROR_IND_PROCEDURE := false;
+        
+        /**
+         * @desc Does eNB support initiation of the Error Indication procedure when an abstract syntax error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.3/17.2 
+         */
+        modulepar boolean PICS_S1AP_eNB_INITIATION_ERROR_IND_ABSTRACT_SYNTAX_PROCEDURE := false;
+        
+        /**
+         * @desc Does eNB support initiation of the Error Indication procedure when a logical error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.3/17.3 
+         */
+        modulepar boolean PICS_S1AP_eNB_INITIATION_ERROR_IND_LOGICAL_ERROR_PROCEDURE := false;
+        
+    } // End of group PICS_A3
+    
+    group PICS_A4 { 
+        
+        /**
+         * @desc Does eNB support initiation oft the Error Indication procedure when a transfer syntax error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.4/17.1 
+         */
+        modulepar boolean PICS_S1AP_MME_INITIATION_ERROR_IND_PROCEDURE := false;
+        
+        /**
+         * @desc Does eNB support initiation of the Error Indication procedure when an abstract syntax error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.4/17.2 
+         */
+        modulepar boolean PICS_S1AP_MME_INITIATION_ERROR_IND_ABSTRACT_SYNTAX_PROCEDURE := false;
+        
+        /**
+         * @desc Does eNB support initiation of the Error Indication procedure when a logical error is detected? 
+         * @see  ETSI DTS_INT-00135-1 A.4/17.3 
+         */
+        modulepar boolean PICS_S1AP_MME_INITIATION_ERROR_IND_LOGICAL_ERROR_PROCEDURE := false;
+        
+    } // End of group PICS_A4
+    
+} // End of module S1AP_Pics 

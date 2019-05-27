@@ -1,0 +1,129 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL$
+ *              $Id$
+ *    @desc     Module containing types and values for S1AP Protocol
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module LibS1AP_TypesAndValues {
+    
+    // LibS1AP
+    import from S1AP_IEs language "ASN.1:1997" all;
+    import from S1AP_PDU_Contents language "ASN.1:1997" all;
+    
+    /**
+     * @desc List of E-RABSetupItemBearerSURes IEs
+     */
+    type record of E_RABToBeSetupItemBearerSUReq RecordOf_E_RABToBeSetupItemBearerSUReq;
+
+    /**
+     * @desc List of E-RABToBeSetupItemCtxtSUReq IEs
+     */
+    type record of E_RABToBeSetupItemCtxtSUReq RecordOf_E_RABToBeSetupItemCtxtSUReq;
+    
+    /**
+     * @desc List of E-RABModifiedItemBearerSURes IEs
+     */
+    type record of E_RABToBeModifiedItemBearerModReq RecordOf_E_RABToBeModifiedItemBearerModReq;
+    
+    /**
+     * @desc List of E-RABToBeModifiedItemBearerModInd IEs
+     */
+    type record of E_RABToBeModifiedItemBearerModInd RecordOf_E_RABToBeModifiedItemBearerModInd;
+    
+    /**
+     * @desc List of E-RABSetupItemBearerSURes IEs
+     */
+    type record of E_RABSetupItemBearerSURes RecordOf_E_RABSetupItemBearerSURes;
+ 
+     /**
+     * @desc List of E-RABModifyItemBearerModConf IEs
+     */
+    type record of E_RABModifyItemBearerModConf RecordOf_E_RABModifyItemBearerModConf;
+
+    /**
+    * @desc List of E-RABModifyItemBearerModRes IEs
+    */
+    type record of E_RABModifyItemBearerModRes RecordOf_E_RABModifyItemBearerModRes;
+ 
+    /**
+    * @desc List of E-RABModifyItemHOReq IEs
+    */
+    type record of E_RABToBeSetupItemHOReq RecordOf_E_RABToBeSetupItemHOReq;
+ 
+    /**
+    * @desc List of E-RABToBeSwitchedDLItem IEs
+    */
+    type record of E_RABToBeSwitchedDLItem RecordOf_E_RABToBeSwitchedDLItem;
+    
+    /**
+     * @desc List of E-RAB IEs
+     */
+    type record of E_RABItem RecordOf_E_RABItem;
+    
+    /**
+     * @desc List of E-RABFailedToResumeItemResumeReq IEs
+     */
+    type record of E_RABFailedToResumeItemResumeReq RecordOf_E_RABFailedToResumeItemResumeReq;
+    
+    /**
+     * @desc List of E-RABs Subject to Forwarding
+     */
+    type record of E_RABDataForwardingItem RecordOf_E_RABDataForwardingItem;
+    
+    /**
+     * @desc List of E-RABAdmittedItem IEs
+     */
+    type record of E_RABAdmittedItem RecordOf_E_RABAdmittedItem;
+    
+    /**
+     * @desc This data structure redefines ASN.1 ProtocolIE-Field data structure die to parameterization limitation of TTCN-3 tools
+     * @member id           Protocol Information Element identifier
+     * @member criticality  Criticality value attached to this IE
+     * @member value_       Value of this IE
+     * @see ETSI TS 136 413 Clause 9.1 Message Functional Definition and Content
+     */
+    /*
+    type record ProtocolIE {
+        integer id (0 .. 65535),
+        enumerated {
+            reject, ignore, notify
+        } criticality,
+        anytype value_
+    }
+    */
+    /**
+     * @desc List of ProtocolIEs
+     */
+    //type set of ProtocolIE SetOf_ProtocolIE;
+    
+} with {
+    encode "LibS1AP_asn1"
+    extension "anytype bitstring, Cause, Cdma2000HORequiredIndication, Cdma2000HOStatus, Cdma2000RATType, CellAccessMode, CNDomain, Correlation_ID, CriticalityDiagnostics, CSFallbackIndicator, CSG_Id"
+    extension "anytype CSGMembershipInfo, CSGMembershipStatus, DeactivateTrace, E_RABAdmittedList, E_RABFailedToResumeItemResumeReq, E_RABSubjecttoDataForwardingList, E_UTRAN_Trace_ID, ECGIListForRestart"
+    extension "anytype EmergencyAreaIDListForRestart, ENB_StatusTransfer_TransparentContainer, ENB_UE_S1AP_ID, EUTRAN_CGI, Global_ENB_ID, GUMMEIList, HandoverType, Inter_SystemInformationTransferType"
+    extension "anytype LPPa_PDU, MessageIdentifier, MME_Group_ID, MME_UE_S1AP_ID, MSClassmark2, MSClassmark3, NASSecurityParameterstoE_UTRAN, NumberOfBroadcasts, octetstring, OverloadResponse, PagingDRX"
+    extension "anytype PWSfailedECGIList, RecordOf_E_RABDataForwardingItem, RecordOf_E_RABAdmittedItem, RecordOf_E_RABFailedToResumeItemResumeReq, RecordOf_E_RABItem, RecordOf_E_RABModifyItemBearerModRes"
+    extension "anytype RecordOf_E_RABSetupItemBearerSURes, RecordOf_E_RABToBeModifiedItemBearerModInd, RecordOf_E_RABToBeModifiedItemBearerModReq, RecordOf_E_RABToBeSetupItemBearerSUReq, RecordOf_E_RABToBeSetupItemCtxtSUReq"
+    extension "anytype RecordOf_E_RABToBeSetupItemHOReq, RecordOf_E_RABToBeSwitchedDLItem, RelativeMMECapacity, RepetitionPeriod, RequestType, ResetType, Routing_ID, RRC_Establishment_Cause, SecurityContext"
+    extension "anytype SecurityKey, SerialNumber, ServedGUMMEIs, SONConfigurationTransfer, Source_ToTarget_TransparentContainer, SRVCCHOIndication, SupportedTAs, TAI, TAIList, TAIListForRestart"
+    extension "anytype Target_ToSource_TransparentContainer, TargetID, TraceActivation, UE_associatedLogicalS1_ConnectionItem, UE_associatedLogicalS1_ConnectionListRes, UEAggregateMaximumBitrate"
+    extension "anytype UEIdentityIndexValue, UEPagingID, UESecurityCapabilities, UserLocationInformation, VoiceSupportMatchIndicator, WarningAreaList"
+} // End of module LibS1AP_TypesAndValues
+
+
+
+
+
+
+
+
+
+
+
+
+

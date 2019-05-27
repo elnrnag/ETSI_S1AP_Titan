@@ -1,0 +1,173 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL$
+ *              $Id$
+ *    @desc     This module provides ATS specific steps used by the test cases for S1AP test.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module S1AP_Steps {
+
+    // LibS1AP
+    import from LibS1AP_Steps  all;
+    import from LibS1AP_Interface all;
+    
+    // S1AP_Ats
+    import from S1AP_Pixits all;
+    
+        import from IPL4asp_PortType all;
+    import from IPL4asp_User_CtrlFunct all;
+    import from Socket_API_Definitions all;
+    
+    
+    group GlobalSteps {
+        
+        /**
+         * @desc    This is a test step that init global variables
+         *          This procedure will be use when the Test System acts as MME (SUT is eNB)
+         */
+        function f_S1AP_mme_init()
+        runs on S1APComponent {
+            
+            // Defaults
+            vc_default_s1ap := activate (a_defaultS1AP());
+            
+            // Base LibS1AP init function if there will be any base initialisation
+            f_S1AP_Init_Component();
+            
+            vc_ETS_address := PX_S1AP_ETS_IPADDR;
+            vc_ETS_port    := PX_S1AP_ETS_PORT;
+            vc_SUT_address := PX_S1AP_SUT_IPADDR;
+            vc_SUT_port    := PX_S1AP_SUT_PORT;
+            
+        } // End of function f_S1AP_init
+        
+        /**
+         * @desc    This is a test step that init global variables
+         *          This procedure will be use when the Test System acts as eNB (SUT is MME)
+         */
+        function f_S1AP_enb_init()
+        runs on S1APComponent {
+            
+            // Defaults
+            vc_default_s1ap := activate (a_defaultS1AP());
+            
+            // Base LibS1AP init function if there will be any base initialisation
+            f_S1AP_Init_Component();
+            
+            vc_ETS_address := PX_S1AP_ETS_IPADDR;
+            vc_ETS_port    := PX_S1AP_ETS_PORT;
+            vc_SUT_address := PX_S1AP_SUT_IPADDR;
+            vc_SUT_port    := PX_S1AP_SUT_PORT;
+            
+            log("mapped p_S1APComponent_enb:S1_MMEeNB_P");
+            
+   			ConnectionResult := IPL4asp_User_CtrlFunct.f_IPL4_connect(S1_MMEeNB_P, "localhost", 3868, "localhost", 10000, -1, {tcp := {}}); //{sctp:={omit, omit, omit, omit}});{sctp := {omit, omit, omit, omit}} );
+            
+            
+        } // End of function f_S1AP_enb_init
+        
+        /**
+         * @desc    This is a test step that init global variables
+         */
+        function f_S1AP_enb_init2()
+        runs on S1APComponent {
+            
+            // Defaults
+            vc_default_s1ap := activate (a_defaultS1AP());
+            
+            // Base LibS1AP init function if there will be any base initialisation
+            f_S1AP_Init_Component();
+            
+            vc_ETS_address := PX_S1AP_ETS_IPADDR2;
+            vc_ETS_port    := PX_S1AP_ETS_PORT2;
+            vc_SUT_address := PX_S1AP_SUT_IPADDR;
+            vc_SUT_port    := PX_S1AP_SUT_PORT;
+            
+        } // End of function f_S1AP_enb_init2
+        
+    } // End of group GlobalSteps
+    
+    group Preambles{
+        
+        /**
+         * @desc 
+         */
+        function f_preamble_S1AP_MME() runs on S1APComponent {
+            var default     v_def_s1ap_;
+            
+            f_S1AP_mme_init();
+            //f_preambleS1APClient();
+        } // End of function f_preamble_S1AP_MME
+        
+        /**
+         * @desc 
+         */
+        function f_preamble_S1AP_eNB() runs on S1APComponent {
+            var default     v_def_s1ap_;
+           
+            f_S1AP_enb_init();
+            //f_preambleS1APServer();
+        } // End of function f_preamble_S1AP_eNB
+        
+        /**
+         * @desc 
+         */
+        function f_preamble_S1AP_eNB2() runs on S1APComponent {
+            var default     v_def_s1ap_;
+            
+            f_S1AP_enb_init2();
+            //f_preambleS1APServer();
+        } // End of function f_preamble_S1AP_eNB2
+        
+    } // End of group Preambles
+    
+    group Postambles {
+        
+        /**
+         * @desc 
+         */
+        function f_postamble_S1AP_MME() runs on S1APComponent {
+            f_postambleS1AP_MME();
+       
+            // Deactivate defaults
+            deactivate;
+        } // End of function f_postamble_S1AP_MME
+        
+        /**
+         * @desc 
+         */
+        function f_postamble_S1AP_eNB() runs on S1APComponent {
+            f_postambleS1AP_eNB();
+            
+            //Deactivate defaults
+            deactivate;
+        } // End of function f_postamble_S1AP_eNB
+        
+        /**
+         * @desc 
+         */
+        function f_postamble_S1AP_eNB2() runs on S1APComponent {
+            f_postambleS1AP_eNB();
+            
+            // Deactivate defaults
+            deactivate;
+        } // End of function f_postamble_S1AP_eNB2
+        
+    } // End of group Postambles
+    
+    group CheckFunctions {
+        
+    } // End of group CheckFunctions
+    
+    group SendMessage {
+    } // End of group SendMessage 
+    
+    group DefaultTestStep{
+    
+    }//end group DefaultTestStep
+    
+} // End of module S1AP_Steps

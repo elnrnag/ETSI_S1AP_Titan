@@ -1,0 +1,60 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// Copyright Test Competence Center (TCC) ETH 2018                           //
+//                                                                           //
+// The copyright to the computer  program(s) herein  is the property of TCC. //
+// The program(s) may be used and/or copied only with the written permission //
+// of TCC or in accordance with  the terms and conditions  stipulated in the //
+// agreement/contract under which the program(s) has been supplied.          //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+//
+//  File:               S1AP_Types.ttcn
+//  Description:        Encoder/decoder for S1AP messages Ericsson Private Extension
+//  Rev:                R1A
+//  Prodnr:             CNL 113 872
+//  Contact:            http://ttcn.ericsson.se
+//  Reference:          3GPP TS 36.413 15.0.0
+//
+module S1AP_Types {
+
+import from S1AP_PDU_Descriptions all;
+//import from S1AP_Ericsson_PDU_Descriptions all;
+import from S1AP_IEs all;
+
+type record of S1AP_PDU S1AP_PDU_List;
+
+external function enc_S1AP_PDU(in S1AP_PDU pdu) return octetstring;
+external function dec_S1AP_PDU(in octetstring stream) return S1AP_PDU;
+/*
+external function dec_S1AP_PDU_backtrack(in octetstring stream, out S1AP_PDU pdu) return integer with { extension "prototype(backtrack)" };
+
+//external function enc_S1AP_Ericsson_PDU(in S1AP_Ericsson_PDU pl_pdu) return octetstring;
+//external function dec_S1AP_Ericsson_PDU(in octetstring pl_stream) return S1AP_Ericsson_PDU;
+external function dec_S1AP_PDU_List(in octetstring stream) return S1AP_PDU_List;
+
+external function enc_S1AP_ENB_StatusTransfer_TransparentContainer(in ENB_StatusTransfer_TransparentContainer pdu) return octetstring;
+external function dec_S1AP_ENB_StatusTransfer_TransparentContainer(in octetstring stream) return ENB_StatusTransfer_TransparentContainer;
+external function dec_S1AP_ENB_StatusTransfer_TransparentContainer_backtrack(in octetstring stream, out ENB_StatusTransfer_TransparentContainer pdu) return integer with { extension "prototype(backtrack)" };
+
+external function enc_S1AP_SourceeNB_ToTargeteNB_TransparentContainer(in SourceeNB_ToTargeteNB_TransparentContainer pdu) return octetstring;
+external function dec_S1AP_SourceeNB_ToTargeteNB_TransparentContainer(in octetstring stream) return SourceeNB_ToTargeteNB_TransparentContainer;
+external function dec_S1AP_SourceeNB_ToTargeteNB_TransparentContainer_backtrack(in octetstring stream, out SourceeNB_ToTargeteNB_TransparentContainer pdu) return integer with { extension "prototype(backtrack)" };
+
+external function enc_S1AP_TargeteNB_ToSourceeNB_TransparentContainer(in TargeteNB_ToSourceeNB_TransparentContainer pdu) return octetstring;
+external function dec_S1AP_TargeteNB_ToSourceeNB_TransparentContainer(in octetstring stream) return TargeteNB_ToSourceeNB_TransparentContainer;
+external function dec_S1AP_TargeteNB_ToSourceeNB_TransparentContainer_backtrack(in octetstring stream, out TargeteNB_ToSourceeNB_TransparentContainer pdu) return integer with { extension "prototype(backtrack)" };
+
+external function enc_S1AP_Global_ENB_ID(in Global_ENB_ID pdu) return octetstring;
+external function dec_S1AP_Global_ENB_ID(in octetstring stream) return Global_ENB_ID;
+external function dec_S1AP_Global_ENB_ID_backtrack(in octetstring stream, out Global_ENB_ID pdu) return integer with { extension "prototype(backtrack)" };
+
+external function enc_S1AP_Cause(in Cause pdu) return octetstring;
+external function dec_S1AP_Cause(in octetstring stream) return Cause;
+external function dec_S1AP_Cause_backtrack(in octetstring stream, out Cause pdu) return integer with { extension "prototype(backtrack)" };
+*/
+}//end of module
+with {
+extension "version R1A"
+}
+

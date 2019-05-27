@@ -1,0 +1,128 @@
+/**
+ *    @author   ETSI / STF519
+ *    @version  $URL:$
+ *              $Id:$
+ *    @desc     This module provides the types used by the test component for S1AP tests.
+ *    @copyright   ETSI Copyright Notification
+ *                 No part may be reproduced except as authorized by written permission.
+ *                 The copyright and the foregoing restriction extend to reproduction in all media.
+ *                 All rights reserved.
+ *    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+ */
+module LibS1AP_Interface {
+    
+    // LibCommon
+    import from LibCommon_Sync all;
+    
+    // LibS1AP
+    import from S1AP_IEs language "ASN.1:1997" all;
+    import from S1AP_PDU_Descriptions language "ASN.1:1997" all;
+    import from LibS1AP_Pixits all;
+    
+    //LibS1AP_TitanExtensions
+    import from LibS1AP_TitanExtensions all;
+    
+    //IPL4 port
+    import from IPL4asp_Types all;
+    import from IPL4asp_PortType all;
+    
+        import from Socket_API_Definitions all;
+    
+    
+    group portDefinitions {
+        
+        /**
+         * @desc S1AP protocol port
+         */
+         /*
+        type port S1APPort message {
+            inout S1AP_PDU
+        } // End of type S1APPort
+        */
+        
+        
+		type port S1APPort message map to IPL4asp_PT
+		{
+		  out S1AP_PDUWithConnId to ASP_SendTo with f_S1AP_PDU_To_ASP_SendTo()
+		  in S1AP_PDU from ASP_RecvFrom with f_ASP_RecvFrom_To_S1AP_PDU(),
+		  ASP_Event,
+		  ASP_ConnId_ReadyToRelease
+		} //with {extension "internal"}
+		/*
+		type port OctetStringPort message {
+		  inout octetstring
+		} with {extension "provider";
+		        extension "internal"
+		}
+		
+		type port S1APPort message map to OctetStringPort {
+		  //inout S1AP_PDU
+		  in S1AP_PDU from octetstring with f_octetstring_To_S1AP_PDU()
+		  out S1AP_PDU to octetstring with f_S1AP_PDU_To_octetstring()
+		  
+		  } with {extension "internal"}
+		*/
+    } // End of group portDefinitions
+    
+    group interfacePorts {
+        
+        /**
+         * @desc Description of TTCN-3 S1AP component
+         * @member S1_MMEeNB_P
+         * @member vc_ETS_address
+         * @member vc_ETS_address2
+         * @member vc_ETS_port
+         * @member vc_ETS_port2
+         * @member vc_SUT_address
+         * @member vc_SUT_port
+         * @member vc_sendS1AP_PDU
+         * @member vc_recvS1AP_PDU
+         * @member vc_recvS1AP_PDUDefault
+         * @member tc_wait
+         * @member tc_delay
+         * @member vc_default_s1ap
+         * @member vc_def_catchSyncStop_s1ap
+         * @member vc_serverStop
+         */
+        type component S1APComponent extends SelfSyncComp {
+            // Port
+            port S1APPort S1_MMEeNB_P;
+            
+            // Global variables
+            var charstring vc_ETS_address   := "";      //defined in init
+            var charstring vc_ETS_address2  := "";      //defined in init
+            var integer vc_ETS_port         := 3868;    //defined in init
+            var integer vc_ETS_port2        := 3869;    //defined in init
+            var charstring vc_SUT_address   := "";      //defined in init
+            var integer vc_SUT_port         := 3868;    //defined in init
+            
+            var S1AP_PDU vc_sendS1AP_PDU ;
+            var S1AP_PDU vc_recvS1AP_PDU ;
+            var S1AP_PDU vc_recvS1AP_PDUDefault ; //global variable defined to save Dimeter message received within default altstep
+            
+            var ASP_Send aspSend;
+            
+            var Socket_API_Definitions.Result ConnectionResult;
+            
+            // Init of values at component started
+            // Note: generation of following MME and ENB UE IDs can be done randomly in init
+            var MME_UE_S1AP_ID vc_MME_UE_ID         := 10;
+            var ENB_UE_S1AP_ID vc_eNB_UE_ID         := 11;
+            
+            // General timers
+            timer tc_wait  := PX_S1AP_TWAIT;
+            timer tc_delay := 0.3;  // delay next Request
+            
+            // Variables for storing default references
+            var default     vc_default_s1ap;
+            var default     vc_def_catchSyncStop_s1ap;
+            
+            //var boolean vc_isAF := false;
+            var boolean vc_serverStop:=false;
+            
+        } // End of type component S1APComponent
+        
+    } // End of group interfacePorts 
+    
+} // End of module LibS1AP_Interface
+

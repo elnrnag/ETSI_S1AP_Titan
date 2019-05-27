@@ -1,0 +1,2115 @@
+/**
+*    @author   ETSI / STF519
+*    @version  $URL$
+*              $Id$
+*    @desc     This module provides functions used in S1AP.
+*    @copyright   ETSI Copyright Notification
+*                 No part may be reproduced except as authorized by written permission.
+*                 The copyright and the foregoing restriction extend to reproduction in all media.
+*                 All rights reserved.
+*    @see      ETSI TS 136 413 / 3GPP TS 36.413 version 13.4.0 Release 13
+*/
+module LibS1AP_Steps {
+
+// LibCommon
+import from LibCommon_Sync all;
+import from LibCommon_VerdictControl all;
+//import from LibCommon_BasicTypesAndValues all;
+
+// LibS1AP
+import from S1AP_CommonDataTypes language "ASN.1:1997" all;
+import from S1AP_PDU_Descriptions language "ASN.1:1997" all;
+import from S1AP_IEs language "ASN.1:1997" all;
+import from S1AP_Containers language "ASN.1:1997" all;
+import from S1AP_PDU_Contents language "ASN.1:1997" all;
+import from S1AP_Constants language "ASN.1:1997" all;
+
+
+import from LibS1AP_TypesAndValues all;
+import from LibS1AP_Interface all;
+import from LibS1AP_Pixits all;
+import from LibS1AP_Templates all;
+
+// Titan extensions
+import from LibS1AP_TitanExtensions all;
+
+/**
+* @desc Common functions description
+*/
+group commonFunctions {
+
+} // End of group commonFunctions
+
+/**
+* @desc Receive functions description
+*/
+group receivePDU {
+
+  /**
+  *  @desc    This is a test step that assign common S1AP
+  *  @param   p_PDU Extract the message payload from the S1AP PDU
+  */
+  function f_S1APPDU_Get(
+    inout S1AP_PDU p_PDU
+  ) runs on S1APComponent {
+
+    vc_recvS1AP_PDU := p_PDU;
+
+    if (ischosen(p_PDU.initiatingMessage)) {
+      // Nothing to do
+    }
+    if (ischosen(p_PDU.successfulOutcome)) {
+      // Nothing to do
+    }
+    if (ischosen(p_PDU.unsuccessfulOutcome)) {
+      // Nothing to do
+    }
+  } // End of function f_S1APPDU_Get
+
+  /**
+  * @desc Receive S1AP PDU from protocol port
+  * @param p_PDU template of the message to be received
+  */
+  function f_recv_S1AP_PDU(
+    in template S1AP_PDU p_PDU
+  ) runs on S1APComponent {
+    var S1AP_PDU v_PDU;
+
+    tc_wait.start;
+    alt {
+      [] S1_MMEeNB_P.receive(S1AP_PDU:?) -> value v_PDU {
+        if (match(v_PDU, p_PDU)) {
+          setverdict(pass);
+        } else {
+          setverdict(fail);
+        }
+        tc_wait.stop;
+        f_S1APPDU_Get(v_PDU)
+      }
+      [] tc_wait.timeout {
+        setverdict(inconc,"*** " & __SCOPE__ & ": INCONC: Message was not received in due time. ***");
+        //Stop the component in case of timeout
+        all timer.stop;
+        f_componentStop();
+      }
+    }
+
+  } // End of function f_recv_S1AP_PDU
+
+  /**
+  * @desc Receive S1AP PDU with InitiatingMessage payload from protocol port
+  * @param p_initiatingMessage Receive template for InitiatingMessage message
+  */
+  function f_recv_S1AP_initiatingMessage(
+    template (present) InitiatingMessage p_initiatingMessage := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_PDU( { initiatingMessage := p_initiatingMessage })
+  } // End of function f_recv_S1AP_initiatingMessage
+
+  /**
+  * @desc Receive S1AP PDU with SuccessfulOutcome payload from protocol port
+  * @param p_successfulOutcome Receive template for SuccessfulOutcome message
+  */
+  function f_recv_S1AP_successfulOutcome(
+    template (present) SuccessfulOutcome p_successfulOutcome := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_PDU( {successfulOutcome := p_successfulOutcome})
+  } // End of f_recv_S1AP_successfulOutcome
+
+  /**
+  * @desc Receive S1AP PDU with UnsuccessfulOutcome payload from protocol port
+  * @param p_unsuccessfulOutcome Receive template for UnsuccessfulOutcome message
+  */
+  function f_recv_S1AP_unsuccessfulOutcome(
+    template (present) UnsuccessfulOutcome p_unsuccessfulOutcome := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_PDU( {unsuccessfulOutcome := p_unsuccessfulOutcome})
+  } // End of function f_recv_S1AP_unsuccessfulOutcome
+
+  /**
+  * @desc Receive S1AP Message E-RAB_SetupRequest
+  * @param p_value Receive template for E-RAB_SetupRequest IEs
+  */
+  //function f_recv_E_RABSetupRequest(in template (present) SetOf_ProtocolIE p_value :=?
+  function f_recv_E_RABSetupRequest(in template (present) E_RABSetupRequest p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_E_RABSetupRequest(p_value))
+  } // End of function f_recv_E_RABSetupRequest
+
+  /**
+  * @desc Receive S1AP Message E_RABSetupResponse
+  * @param p_value Receive template for E_RABSetupResponse IEs
+  */
+  function f_recv_E_RABSetupResponse(
+    template (present) E_RABSetupResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_E_RABSetupResponse(p_value))
+  } // End of f_recv_E_RABSetupResponse
+
+
+  /**
+  * @desc Receive S1AP Message E_RABReleaseResponse
+  * @param p_value Receive template for E_RABReleaseResponse IEs
+  */
+  function f_recv_E_RABReleaseResponse(
+    template (present) E_RABReleaseResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_E_RABReleaseResponseIE(p_value))
+  } // End of f_recv_E_RABReleaseResponse
+
+  /**
+  * @desc Receive S1AP Message E_RABModifiedResponse
+  * @param p_value Receive template for E_RABModifiedResponse IEs
+  */
+  function f_recv_E_RABModifiedResponse(
+    template (present) E_RABModifyResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_E_RABModifiedResponse(p_value))
+  } // End of f_recv_E_RABModifiedResponse
+
+  function f_recv_E_RABReleaseIndication( 
+    template (present) E_RABReleaseIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_E_RABReleaseIndication(p_value))
+    //f_recv_S1AP_successfulOutcome(mw_E_RABReleaseIndication(p_value))
+  }
+
+  function f_recv_E_RABModificationIndication( 
+    template (present) E_RABModificationIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_E_RABModificationIndication(p_value))
+    // f_recv_S1AP_successfulOutcome(mw_E_RABModificationIndication(p_value))
+  }
+
+
+  /**
+  * @desc Receive S1AP Message E_RABModifiedRequest
+  * @param p_value Receive template for E_RABModifiedRequest IEs
+  */
+  function f_recv_E_RABModifiedRequest(
+    template (present) E_RABModifyRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_E_RABModifiedRequest(p_value))
+  } // End of f_recv_E_RABModifiedRequest
+
+  /**
+  * @desc Receive S1AP Message E_RABReleaseCommand
+  * @param p_value Receive template for E_RABReleaseCommand IEs
+  */
+  function f_recv_E_RABReleaseCommand(
+    template (present) E_RABReleaseCommand p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_E_RABReleaseCommand(p_value)) //mw_E_RABReleaseCommand(p_value))  
+  } // End of f_recv_E_RABReleaseCommand
+
+  /**
+  * @desc Receive S1AP Message E_RABModificationConfirm
+  * @param p_value Receive template for E_RABModificationConfirm IEs
+  */
+  function f_recv_E_RABModificationConfirm(
+    template (present) E_RABModificationConfirm p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_E_RABModificationConfirm(p_value)) //mw_E_RABModificationConfirm(p_value)) 
+  } // End of f_recv_E_RABModificationConfirm
+
+  /**
+  * @desc Receive S1AP Message Handover Required
+  * @param p_value Receive template for Handover Required IEs
+  */
+  function f_recv_HandoverRequired(in template (present) HandoverRequired p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_HandoverRequired(p_value))
+  } // End of function f_recv_HandoverRequired
+
+  /**
+  * @desc Receive S1AP Message Handover Command
+  * @param p_value Receive template for Handover Command IEs
+  */
+  function f_recv_HandoverCommand(in template (present) HandoverCommand p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_HandoverCommand(p_value))
+  } // End of function f_recv_HandoverCommand
+
+  /**
+  * @desc Receive S1AP Message Handover Preparation Failure
+  * @param p_value Receive template for Handover Preparation Failure IEs
+  */
+  function f_recv_HandoverPreparationFailure(in template (present) HandoverPreparationFailure p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_HandoverPreparationFailure(p_value))
+  } // End of function f_recv_HandoverRequired
+
+  /**
+  * @desc Receive S1AP Message Handover Request
+  * @param p_value Receive template for Handover Request IEs
+  */
+  function f_recv_HandoverRequest(in template (present) HandoverRequest p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_HandoverRequest(p_value))
+  } // End of function f_recv_HandoverRequest
+
+  /**
+  * @desc Receive S1AP Message Handover Cancel
+  * @param p_value Receive template for Handover Cancel IEs
+  */
+  function f_recv_HandoverCancel(in template (present) HandoverCancel p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_HandoverCancel(p_value))
+  } // End of function f_recv_HandoverCancel
+
+  /**
+  * @desc Receive S1AP Message Handover CancelAcknowledge
+  * @param p_value Receive template for Handover Cancel Acknowledge IEs
+  */
+  function f_recv_HandoverCancelAck(in template (present) HandoverCancelAcknowledge p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_HandoverCancelAck(p_value))
+  } // End of function f_recv_HandoverCancelAck
+
+  /**
+  * @desc Receive S1AP Message MME STATUS TRANSFER
+  * @param p_value Receive template for MME_STATUS_TRANSFER IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.5.14 MME STATUS TRANSFER
+  */
+  function f_recv_Mme_Status_Transfer(template (present) MMEStatusTransfer p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_Mme_Status_Transfer(p_value))
+  } // End of f_recv_Mme_Status_Transfer
+
+
+  /**
+  * @desc Receive S1AP Message Handover Notify
+  * @param p_value Receive template for Handover Notify IEs
+  */
+  function f_recv_HandoverNotify(in template (present) HandoverNotify p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_HandoverNotify(p_value))
+  } // End of function f_recv_HandoverNotify
+
+  /**
+  * @desc Receive S1AP Message Handover Failure
+  * @param p_value Receive template for Handover Failure IEs
+  */
+  function f_recv_HandoverFailure(in template (present) HandoverFailure p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_HandoverFailure(p_value))
+  } // End of function f_recv_HandoverFailure
+
+  /**
+  * @desc Receive S1AP Message Handover Request Acknowlege
+  * @param p_value Receive template for Handover Request Acknowlege IEs
+  */
+  function f_recv_HandoverRequestAck(in template (present) HandoverRequestAcknowledge p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_HandoverRequestAck(p_value))
+  } // End of function f_recv_HandoverRequestAck
+
+  /**
+  * @desc Receive S1AP Message Path Switch Request
+  * @param p_value Receive template for Path Switch Request IEs
+  */
+  function f_recv_PathSwitchRequest(in template (present) PathSwitchRequest p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_PathSwitchRequest(p_value))
+  } // End of function f_recv_PathSwitchRequest
+
+  /**
+  * @desc Receive S1AP Message Path Switch Request Acknowledge
+  * @param p_value Receive template for Path Switch Request Acknowledge IEs
+  */
+  function f_recv_PathSwitchRequestAck(in template (present) PathSwitchRequestAcknowledge p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_PathSwitchRequestAck(p_value))
+  } // End of function f_recv_PathSwitchRequestAck
+
+  /**
+  * @desc Receive S1AP Message Path Switch Request Failure
+  * @param p_value Receive template for Path Switch Request Failure IEs
+  */
+  function f_recv_PathSwitchRequestFailure(in template (present) PathSwitchRequestFailure p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_PathSwitchRequestFailure(p_value))
+  } 
+
+  /**
+  * @desc Receive S1AP Message eNB Status Transfer
+  * @param p_value Receive template for eNB Status Transfer IEs
+  */
+  function f_recv_EnbStatusTransfer(in template (present) ENBStatusTransfer p_value :=?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_EnbStatusTransfer(p_value))
+  } // End of function f_recv_EnbStatusTransfer
+
+  /**
+  * @desc Receive S1AP Message InitialContext_SetupResponse
+  * @param p_value Receive template for InitialContext_SetupResponse IEs
+  */
+  function f_recv_InitialContext_SetupResponse(
+    template (present) InitialContextSetupResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_InitialContextSetupResponse(p_value))
+  } // End of f_recv_InitialContext_SetupResponse
+
+  /**
+  * @desc Receive S1AP Message InitialContext_SetupFailure
+  * @param p_value Receive template for InitialContext_SetupFailure IEs
+  */
+  function f_recv_InitialContext_SetupFailure(
+    template (present) InitialContextSetupFailure p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_InitialContextSetupFailure(p_value))
+  } // End of f_recv_InitialContext_SetupFailure
+
+
+  /**
+  * @desc Receive S1AP Message InitialContext_SetupRequest
+  * @param p_value           Receive template for InitialContext_SetupRequest IEs
+  * @param p_criticality     Expected criticality value. Default: reject
+  */
+  function f_recv_InitialContext_SetupRequest(
+    template (present) InitialContextSetupRequest p_value := ?,
+    template (present) Criticality p_criticality := reject
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(
+      mw_InitialContextSetupRequest(
+        p_value,
+        p_criticality
+      ))
+  } // End of f_recv_InitialContext_SetupRequest
+
+  /**
+  * @desc Receive S1AP Message INITIAL UE MESSAGE
+  * @param p_value Receive template for INITIAL UE MESSAGE IEs
+  */
+  function f_recv_Initial_UE_Message(
+    template (present) InitialUEMessage p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_initial_uE_Message(p_value))
+  } // End of f_recv_Initial_UE_Message
+
+  /**
+  * @desc Receive S1AP Message S1 SETUP REQUEST
+  * @param p_value Receive template for S1 SETUP REQUEST IEs
+  */
+  function f_recv_S1_Setup_Request(
+    template (present) S1SetupRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_s1_Setup_Request(p_value))
+  } // End of f_recv_S1_Setup_Request
+
+  /**
+  * @desc Receive S1AP Message ENB CONFIGURATION UPDATE
+  * @param p_value Receive template for ENB CONFIGURATION UPDATE IEs
+  */
+  function f_recv_eNB_Configuration_Update(
+    template (present) ENBConfigurationUpdate p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_eNB_Configuration_Update(p_value))
+  } // End of f_recv_eNB_Configuration_Update
+
+  /**
+  * @desc Receive S1AP Message OVERLOAD START
+  * @param p_value Receive template for OVERLOAD START IEs
+  */
+  function f_recv_eNB_Overload_Start(
+    template (present) OverloadStart p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_eNB_Overload_Start(p_value))
+  } // End of f_recv_eNB_Overload_Start
+
+  /**
+  * @desc Receive S1AP Message OVERLOAD STOP
+  * @param p_value Receive template for OVERLOAD STOP IEs
+  */
+  function f_recv_eNB_Overload_Stop(
+    template (present) OverloadStop p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_eNB_Overload_Stop(p_value))
+  } // End of f_recv_eNB_Overload_Stop
+
+  /**
+  * @desc Receive S1AP Message ERROR_INDICATION
+  * @param p_value Receive template for ERROR_INDICATION IEs
+  */
+  function f_recv_Error_Indication(
+    template (present) ErrorIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_error_Indication(p_value))
+  } // End of f_recv_Error_Indication
+
+  /**
+  * @desc Receive S1AP Message S1 SETUP RESPONSE
+  * @param p_value Receive template for S1 SETUP RESPONSE IEs
+  */
+  function f_recv_S1_Setup_Response(
+    template (present) S1SetupResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_s1_Setup_Response(p_value))
+  } // End of f_recv_S1_Setup_Response
+
+  /**
+  * @desc Receive S1AP Message S1 SETUP FAILURE
+  * @param p_value Receive template for S1 SETUP FAILURE IEs
+  */
+  function f_recv_S1_Setup_Failure(
+    template (present) S1SetupFailure p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_s1_Setup_Failure(p_value))
+  } // End of f_recv_S1_Setup_Failure
+
+  /**
+  * @desc Receive S1AP Message ENB CONFIGURATION UPDATE ACKNOWLEDGE
+  * @param p_value Receive template for ENB CONFIGURATION UPDATE ACKNOWLEDGE IEs
+  */
+  function f_recv_eNB_Configuration_Update_Acknowledge(
+    template (present) ENBConfigurationUpdateAcknowledge p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_eNB_Configuration_Update_Acknowledge(p_value))
+  } // End of f_recv_eNB_Configuration_Update_Acknowledge
+
+  /**
+  * @desc Receive S1AP Message ENB CONFIGURATION UPDATE FAILURE
+  * @param p_value Receive template for ENB CONFIGURATION UPDATE FAILURE IEs
+  */
+  function f_recv_eNB_Configuration_Update_Failure(
+    template (present) ENBConfigurationUpdateFailure p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_eNB_Configuration_Update_Failure(p_value))
+  } // End of f_recv_eNB_Configuration_Update_Failure
+
+  /**
+  * @desc Receive S1AP Message MME CONFIGURATION UPDATE ACKNOWLEDGE
+  * @param p_value Receive template for MME CONFIGURATION UPDATE ACKNOWLEDGE IEs
+  */
+  function f_recv_MME_Configuration_Update_Acknowledge(
+    template (present) MMEConfigurationUpdateAcknowledge p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_mME_Configuration_Update_Acknowledge(p_value))
+  } // End of f_recv_MME_Configuration_Update_Acknowledge
+
+  /**
+  * @desc Receive S1AP Message MME CONFIGURATION UPDATE FAILURE
+  * @param p_value Receive template for MME CONFIGURATION UPDATE FAILURE IEs
+  */
+  function f_recv_MME_Configuration_Update_Failure(
+    template (present) MMEConfigurationUpdateFailure p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_mME_Configuration_Update_Failure(p_value))
+  } // End of f_recv_MME_Configuration_Update_Failure
+
+  /**
+  * @desc Receive S1AP Message PAGING
+  * @param p value Receive template for PAGING IEs
+  */
+  function f_recv_Paging(
+    template (present) Paging p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_paging(p_value))
+  } // End of f_recv_Paging
+
+  /**
+  * @desc Receive S1AP Message DOWNLINK NAS TRANSPORT
+  * @param p value Receive template for DOWNLINK NAS TRANSPORT IEs
+  */
+  function f_recv_Downlink_NAS_Transport(
+    template (present) DownlinkNASTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_downlink_nAS_Transport(p_value))
+  } // End of f_recv_Downlink_NAS_Transport
+
+  /**
+  * @desc Receive S1AP Message UPLINK NAS TRANSPORT
+  * @param p value Receive template for UPLINK NAS TRANSPORT IEs
+  */
+  function f_recv_Uplink_NAS_Transport(
+    template (present) UplinkNASTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_uplink_nAS_Transport(p_value))
+  } // End of f_recv_Uplink_NAS_Transport
+
+  /**
+  * @desc Receive S1AP Message sends a NAS NON DELIVERY INDICATION
+  * @param p value Receive template for NAS NON DELIVERY INDICATION IEs
+  */
+  function f_recv_NAS_Non_Delivery_Indication(
+    template (present) NASNonDeliveryIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_nAS_Non_Delivery_Indication(p_value))
+  } // End of f_recv_NAS_Non_Delivery_Indication
+
+  /**
+  * @desc Receive S1AP Message REROUTE NAS REQUEST
+  * @param p value Receive template for REROUTE NAS REQUEST IEs
+  */
+  function f_recv_Reroute_NAS_Request(
+    template (present) RerouteNASRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_reroute_nAS_Request(p_value))
+  } // End of f_recv_Reroute_NAS_Request
+
+  /**
+  * @desc Receive S1AP Message RESET
+  * @param p_value Receive template for RESET IEs
+  */
+  function f_recv_Reset(
+    template (present) Reset p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_reset(p_value))
+  } // End of f_recv_Reset
+
+  /**
+  * @desc Receive S1AP Message RESET ACKNOWLEDGE
+  * @param p_value Receive template for RESET ACKNOWLEDGE IEs
+  */
+  function f_recv_Reset_Acknowledge(
+    template (present) ResetAcknowledge p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_reset_Acknowledge(p_value))
+  } // End of f_recv_Reset_Acknowledge
+
+  /**
+  * @desc Receive S1AP Message an UPLINK S1 CDMA2000 TUNNELLING
+  * @param p_value Receive template for UPLINK S1 CDMA2000 TUNNELLING IEs
+  */
+  function f_recv_Uplink_S1_CDMA2000_Tunnelling(
+    template (present) UplinkS1cdma2000tunnelling p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_uplink_S1_CDMA2000_Tunnelling(p_value))
+  } // End of f_recv_Uplink_S1_CDMA2000_Tunnelling
+
+  /**
+  * @desc Receive S1AP Message UE CAPABILITY INFO INDICATION
+  * @param p_value Receive template for UE CAPABILITY INFO INDICATION IEs
+  */
+  function f_recv_eNB_UE_Capability_Info_Indication(
+    template (present) UECapabilityInfoIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_uE_Capability_Info_Indication(p_value))
+  } // End of f_recv_eNB_UE_Capability_Info_Indication
+
+  /**
+  * @desc Receive S1AP Message TRACE FAILURE INDICATION
+  * @param p_value Receive template for TRACE FAILURE INDICATION IEs
+  */
+  function f_recv_Trace_Failure_Indication(
+    template (present) TraceFailureIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_trace_Failure_Indication(p_value))
+  } // End of f_recv_Trace_Failure_Indication
+
+  /**
+  * @desc Receive S1AP Message CELL TRAFFIC TRACE
+  * @param p_value Receive template for CELL TRAFFIC TRACE IEs
+  */
+  function f_recv_Cell_Traffic_Trace(
+    template (present) CellTrafficTrace p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_cell_Traffic_Trace(p_value))
+  } // End of f_recv_Cell_Traffic_Trace
+
+  /**
+  * @desc Receive S1AP Message LOCATION REPORT
+  * @param p_value Receive template for LOCATION REPORT IEs
+  */
+  function f_recv_Location_Report(
+    template (present) LocationReport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_location_Report(p_value))
+  } // End of f_recv_Location_Report
+
+  /**
+  * @desc Receive S1AP Message LOCATION REPORT FAILURE INDICATION
+  * @param p_value Receive template for LOCATION REPORT FAILURE INDICATION IEs
+  */
+  function f_recv_Location_Report_Failure_Indication(
+    template (present) LocationReportingFailureIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_location_Report_Failure_Indication(p_value))
+  } // End of f_recv_Location_Report_Failure_Indication
+
+  /**
+  * @desc Receive S1AP Message WRITE-REPLACE WARNING RESPONSE
+  * @param p_value Receive template for WRITE-REPLACE WARNING RESPONSE IEs
+  */
+  function f_recv_Write_Replace_Warning_Response(
+    template (present) WriteReplaceWarningResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_write_Replace_Warning_Response(p_value))
+  } // End of f_recv_Write_Replace_Warning_Response
+
+  /**
+  * @desc Receive S1AP Message WRITE-REPLACE WARNING RESPONSE
+  * @param p_value Receive template for WRITE-REPLACE WARNING RESPONSE IEs
+  */
+  function f_recv_Kill_Response(
+    template (present) KillResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_kill_Response(p_value))
+  } // End of f_recv_Kill_Response
+
+  /**
+  * @desc Receive S1AP Message PWS RESTART INDICATION
+  * @param p_value Receive template for PWS_RESTART_INDICATION IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.13.5 PWS RESTART INDICATION
+  */
+  function f_recv_eNB_PWS_Restart_Indication(
+    template (present) PWSRestartIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_pWS_Restart_Indication(p_value))
+  } // End of f_recv_eNB_PWS_Restart_Indication
+
+  /**
+  * @desc Receive S1AP Message PWS FAILURE INDICATION
+  * @param p_value Receive template for PWS_FAILURE_INDICATION IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.13.6 PWS FAILURE INDICATION
+  */
+  function f_recv_eNB_PWS_Failure_Indication(
+    template (present) PWSFailureIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_pWS_Failure_Indication(p_value))
+  } // End of f_recv_eNB_PWS_Failure_Indication
+
+  /**
+  * @desc Receive S1AP Message ENB DIRECT INFORMATION TRANSFER
+  * @param p_value Receive template for ENB_DIRECT_INFORMATION_TRANSFER IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.14 eNB DIRECT INFORMATION TRANSFER
+  */
+  function f_recv_eNB_Direct_Information_Transfer(
+    template (present) ENBDirectInformationTransfer p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_eNB_Direct_Information_Transfer(p_value))
+  } // End of f_recv_eNB_Configuration_Transfer
+
+  /**
+  * @desc Receive S1AP Message DOWNLINK S1 CDMA2000 TUNNELLING
+  * @param p_value Receive template for DOWNLINK S1 CDMA2000 TUNNELLING IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.9.1 DOWNLINK S1 CDMA2000 TUNNELLING
+  */
+  function f_recv_Downlink_S1_CDMA2000_Tunnelling(
+    template (present) DownlinkS1cdma2000tunnelling p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_downlink_S1_CDMA2000_Tunnelling(p_value))
+  } // End of f_recv_Downlink_S1_CDMA2000_Tunnelling
+
+  /**
+  * @desc Receive S1AP Message TRACE START 
+  * @param p_value Receive template for TRACE START IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.11.1 TRACE START
+  */
+  function f_recv_Trace_Start(
+    template (present) TraceStart p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_trace_Start(p_value))
+  } // End of f_recv_Trace_Start
+
+  /**
+  * @desc Receive S1AP Message DEACTIVATE TRACE 
+  * @param p_value Receive template for DEACTIVATE TRACE IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.11.3 DEACTIVATE TRACE
+  */
+  function f_recv_Deactivate_Trace(
+    template (present) DeactivateTrace p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_deactivate_Trace(p_value))
+  } // End of f_recv_Deactivate_Trace
+
+  /**
+  * @desc Receive S1AP Message LOCATION REPORTING CONTROL 
+  * @param p_value Receive template for LOCATION_REPORTING_CONTROL IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.12.1 LOCATION REPORTING CONTROL
+  */
+  function f_recv_Location_Reporting_Control(
+    template (present) LocationReportingControl p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_location_Reporting_Control(p_value))
+  } // End of f_recv_Location_Reporting_Control
+
+  /**
+  * @desc Receive S1AP Message WRITE-REPLACE WARNING REQUEST 
+  * @param p_value Receive template for WRITE_REPLACE_WARNING_REQUEST IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.13.1 WRITE-REPLACE WARNING REQUEST
+  */
+  function f_recv_Write_Replace_Warning_Request(
+    template (present) WriteReplaceWarningRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_write_Replace_Warning_RequestResponse(p_value))
+  } // End of f_recv_Write_Replace_Warning_Request
+
+  /**
+  * @desc Receive S1AP Message KILL_REQUEST
+  * @param p_value Receive template forKILL_REQUEST IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.13.3 KILL REQUEST
+  */
+  function f_recv_Kill_Request(
+    template (present) KillRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_kill_RequestResponse(p_value))
+  } // End of f_recv_Kill_Request
+
+  /**
+  * @desc Receive S1AP Message MME DIRECT INFORMATION TRANSFER
+  * @param p_value Receive template for MME_DIRECT_INFORMATION_TRANSFER IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.15 MME DIRECT INFORMATION TRANSFER
+  */
+  function f_recv_Mme_Direct_Information_Transfer(
+    template (present) MMEDirectInformationTransfer p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_Mme_Direct_Information_Transfer(p_value))
+  } // End of f_recv_Mme_Configuration_Transfer
+
+  /**
+  * @desc Receive S1AP Message ENB CONFIGURATION TRANSFER
+  * @param p_value Receive template for ENB_CONFIGURATION_TRANSFER IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.16 eNB CONFIGURATION TRANSFER
+  */
+  function f_recv_eNB_Configuration_Transfer(
+    template (present) ENBConfigurationTransfer p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_eNB_Configuration_Transfer(p_value))
+  } // End of f_recv_eNB_Configuration_Transfer
+
+  /**
+  * @desc Receive S1AP Message MME CONFIGURATION TRANSFER
+  * @param p_value Receive template for MME_CONFIGURATION_TRANSFER IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.17 MME CONFIGURATION TRANSFER
+  */
+  function f_recv_Mme_Configuration_Transfer(
+    template (present) MMEConfigurationTransfer p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_Mme_Configuration_Transfer(p_value))
+  } // End of f_recv_Mme_Configuration_Transfer
+
+  /**
+  * @desc Receive S1AP Message DOWNLINK_UE_ASSOCIATED_LPPA_TRANSPORT
+  * @param p_value Receive template for DOWNLINK_UE_ASSOCIATED_LPPA_TRANSPORT IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.19.1 DOWNLINK UE ASSOCIATED LPPA TRANSPORT
+  */
+  function f_recv_Downlink_UE_Associated_Lppa_Transport(
+    template (present) DownlinkUEAssociatedLPPaTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_DownlinkUEAssociatedLppaTransport(p_value))
+  } // End of f_recv_Downlink_UE_Associated_Lppa_Transport
+
+  /**
+  * @desc Receive S1AP Message UPLINK_UE_ASSOCIATED_LPPA_TRANSPORT
+  * @param p_value Receive template for UPLINK_UE_ASSOCIATED_LPPA_TRANSPORT IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.17 MME CONFIGURATION TRANSFER
+  */
+  function f_recv_Uplink_UE_Associated_Lppa_Transport(
+    template (present) UplinkUEAssociatedLPPaTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UplinkUEAssociatedLppaTransport(p_value))
+  } // End of f_recv_Uplink_UE_Associated_Lppa_Transport
+
+  /**
+  * @desc Receive S1AP Message DOWNLINK_NON_UE_ASSOCIATED_LPPA_TRANSPORT
+  * @param p_value Receive template for DOWNLINK_NON_UE_ASSOCIATED_LPPA_TRANSPORT IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.19.3 DOWNLINK NON UE ASSOCIATED LPPA TRANSPORT
+  */
+  function f_recv_Downlink_Non_UE_Associated_Lppa_Transport(
+    template (present) DownlinkNonUEAssociatedLPPaTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_DownlinkNonUEAssociatedLppaTransport(p_value))
+  } // End of f_recv_Downlink_Non_UE_Associated_Lppa_Transport
+
+  /**
+  * @desc Receive S1AP Message UPLINK_NON_UE_ASSOCIATED_LPPA_TRANSPORT
+  * @param p_value Receive template for UPLINK_NON_UE_ASSOCIATED_LPPA_TRANSPORT IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.19.4 UPLINK NON UE ASSOCIATED LPPA TRANSPORT
+  */
+  function f_recv_Uplink_Non_UE_Associated_Lppa_Transport(
+    template (present) UplinkNonUEAssociatedLPPaTransport p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UplinkNonUEAssociatedLppaTransport(p_value))
+  } // End of f_recv_Uplink_Non_UE_Associated_Lppa_Transport
+
+  /**
+  * @desc Receive S1AP Message HANDOVER_REQUIRED
+  * @param p_value Receive template for HandoverRequired IEs
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.5.1 HANDOVER_REQUIRED
+  */
+  function f_recv_Handover_Required(
+    template (present) HandoverRequired p_value := ?
+  ) runs on S1APComponent {
+    f_recv_HandoverRequired(p_value);
+  } // End of f_recv_Handover_Required
+
+  /**
+  * @desc Receive S1AP Message UE Context Release Request
+  * @param p_value Receive template for UE CONTEXT RELEASE REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.5 UE CONTEXT RELEASE REQUEST
+  */
+  function f_recv_UE_Context_Release_Request(
+    template (present) UEContextReleaseRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(m_UeContextReleaseRequest(p_value))
+  } // End of f_recv_UE_Context_Release_Request
+
+  /**
+  * @desc Receive S1AP Message UE Context Release Complete
+  * @param p_value Receive template for UE CONTEXT RELEASE COMPLETE
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.7 UE CONTEXT RELEASE COMPLETE
+  */
+  function f_recv_UE_Context_Release_Complete(
+    template (present) UEContextReleaseComplete p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(m_UeContextReleaseComplete(p_value))
+  } // End of f_recv_UE_Context_Release_Complete
+
+
+  /**
+  * @desc Receive S1AP Message UE Context Release Command
+  * @param p_value Receive template for UE CONTEXT RELEASE COMMAND
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.6 UE CONTEXT RELEASE COMMAND
+  */
+  function f_recv_UE_Context_Release_Command(
+    template (present) UEContextReleaseCommand p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(m_UeContextReleaseCommand(p_value))
+  } // End of f_recv_UE_Context_Release_Command
+
+
+  /**
+  * @desc Receive S1AP Message UE Context Modification Request
+  * @param p_value Receive template for UE CONTEXT MODIFICATION REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.8 UE CONTEXT MODIFICATION REQUEST
+  */
+  function f_recv_UE_Context_Modification_Request(
+    template (present) UEContextModificationRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(m_UeContextModificationRequest(p_value))
+  } // End of f_recv_UE_Context_Modification_Request
+
+
+  /**
+  * @desc Receive S1AP Message UE Context Modification Response
+  * @param p_value Receive template for UE CONTEXT MODIFICATION RESPONSE
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.9 UE CONTEXT MODIFICATION RESPONSE
+  */
+  function f_recv_UE_Context_Modification_Response(
+    template (present) UEContextModificationResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_UeContextModificationResponse(p_value))
+  } // End of f_recv_UE_Context_Modification_Response
+
+  /**
+  * @desc Receive S1AP Message UE Context Modification Failure
+  * @param p_value Receive template for UE CONTEXT MODIFICATION FAILURE
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.10 UE CONTEXT MODIFICATION FAILURE
+  */
+  function f_recv_UE_Context_Modification_Failure(
+    template (present) UEContextModificationFailure p_value := ?
+  ) runs on S1APComponent {
+    //f_recv_S1AP_initiatingMessage(mw_UeContextModificationFailure(p_value))
+    f_recv_S1AP_unsuccessfulOutcome(mw_UeContextModificationFailure(p_value))
+  } // End of f_recv_UE_Context_Modification_Failure
+
+  /**
+  * @desc Receive S1AP Message UE Context Modification Indication
+  * @param p_value Receive template for UE CONTEXT MODIFICATION Indication
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.13 UE CONTEXT MODIFICATION Indication
+  */
+  function f_recv_Ue_Context_Modification_Indication(
+    template (present) UEContextModificationIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UeContextModificationIndication(p_value))
+  } // End of f_recv_Ue_Context_Modification_Indication
+
+  /**
+  * @desc Receive S1AP Message UE Context Modification Confirm
+  * @param p_value Receive template for UE CONTEXT MODIFICATION Indication
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.14 UE CONTEXT MODIFICATION Confirm
+  */
+  function f_recv_Ue_Context_Modification_Confirm(
+    template (present) UEContextModificationConfirm p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_UeContextModificationConfirm(p_value))
+  } // End of f_recv_Ue_Context_Modification_Confirm
+
+  /**
+  * @desc Receive S1AP Message UE Context Suspend Request
+  * @param p_value Receive template for UE CONTEXT Suspend Request
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.15 UE CONTEXT SUSPEND Request
+  */
+  function f_recv_Ue_Context_Suspend_Request(
+    template (present) UEContextSuspendRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UeContextSuspendRequest(p_value))
+  } // End of f_recv_Ue_Context_Suspend_Request
+
+  /**
+  * @desc Receive S1AP Message UE Context Suspend Response
+  * @param p_value Receive template for UE CONTEXT Suspend Request
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.16 UE CONTEXT SUSPEND Response
+  */
+  function f_recv_Ue_Context_Suspend_Response(
+    template (present) UEContextSuspendResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_UeContextSuspendResponse(p_value))
+  } // End of f_recv_Ue_Context_Suspend_Response
+
+  /**
+  * @desc Receive S1AP Message UE Context Resume Request
+  * @param p_value Receive template for UE CONTEXT Resume Request
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.17 UE CONTEXT Resume Request
+  */
+  function f_recv_Ue_Context_Resume_Request(
+    template (present) UEContextResumeRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UeContextResumeRequest(p_value))
+  } // End of f_recv_Ue_Context_Resume_Request
+
+  /**
+  * @desc Receive S1AP Message UE Context Resume Response
+  * @param p_value Receive template for UE CONTEXT Resume Request
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.18 UE CONTEXT Resume Response
+  */
+  function f_recv_Ue_Context_Resume_Response(
+    template (present) UEContextResumeResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_UeContextResumeResponse(p_value))
+  } // End of f_recv_Ue_Context_Resume_Response
+
+  /**
+  * @desc Receive S1AP Message UE Context Resume Failure
+  * @param p_value Receive template for UE CONTEXT Resume Failure
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.19 UE CONTEXT Resume Faiure
+  */
+  function f_recv_Ue_Context_Resume_Failure(
+    template (present) UEContextResumeFailure p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_unsuccessfulOutcome(mw_UeContextResumeFailure(p_value))
+  } // End of f_recv_Ue_Context_Resume_Failure
+
+  /**
+  * @desc Receive S1AP Message UE RADIO_CAPABILITY_MATCH_RESPONSE
+  * @param p_value Receive template for UE_RADIO_CAPABILITY_MATCH_RESPONSE
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.12 UE_RADIO_CAPABILITY_MATCH_RESPONSE
+  */
+  function f_recv_UeRadioCapabilityMatchResponse(
+    template (present) UERadioCapabilityMatchResponse p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_successfulOutcome(mw_UeRadioCapabilityMatchResponse(p_value))
+  } // End of f_recv_UeRadioCapabilityMatchResponse
+
+  /**
+  * @desc Receive S1AP Message UE RADIO_CAPABILITY_MATCH_REQUEST
+  * @param p_value Receive template for UE_RADIO_CAPABILITY_MATCH_REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.11 UE_RADIO_CAPABILITY_MATCH_REQUEST
+  */
+  function f_recv_UeRadioCapabilityMatchRequest(
+    template (present) UERadioCapabilityMatchRequest p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_UeRadioCapabilityMatchRequest(p_value))
+  } // End of f_recv_UeRadioCapabilityMatchRequest
+
+  /**
+  * @desc Receive S1AP Message Connection Establishment Indication
+  * @param p_value Receive template for Connection Establishment Indication
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.20 Connection Establishment Indication
+  */
+  function f_recv_Connection_Establishment_Indication(
+    template (present) ConnectionEstablishmentIndication p_value := ?
+  ) runs on S1APComponent {
+    f_recv_S1AP_initiatingMessage(mw_ConnectionEstablishmentIndication(p_value))
+  } // End of f_recv_Connection_Establishment_Indication
+
+} // End of group receivePDU
+
+/**
+* @desc Send functions description
+*/
+group sendPDU {
+
+  /**
+  *  @desc    This is a test step that assign common S1AP
+  *  @param p_PDU The S1AP protocol message to set up
+  */
+  function f_S1APPDU_Set(
+    inout template (value) S1AP_PDU p_PDU
+  ) runs on S1APComponent {
+
+    if (ischosen(p_PDU.initiatingMessage)) {
+      vc_sendS1AP_PDU:=valueof(p_PDU);
+    }
+    if (ischosen(p_PDU.successfulOutcome)) {
+      vc_sendS1AP_PDU:=valueof(p_PDU);
+    }
+    if (ischosen(p_PDU.unsuccessfulOutcome)) {
+      vc_sendS1AP_PDU:=valueof(p_PDU);
+    }
+
+  } // End of function f_S1APPDU_Set
+
+  /**
+  * @desc Send S1AP PDU to protocol port
+  * @param p_PDU template value message to be send
+  */
+  function f_send_S1AP_PDU(
+    in template (value) S1AP_PDU p_PDU
+  ) runs on S1APComponent {
+    f_S1APPDU_Set(p_PDU);
+    var S1AP_PDUWithConnId pdu := {vc_sendS1AP_PDU, ConnectionResult.connId}
+    S1_MMEeNB_P.send(pdu);
+  } // End of function f_send_S1APPDU
+
+  /**
+  * @desc Send S1AP PDU with InitiatingMessage payload from protocol port
+  * @param p_initiatingMessage Send value template for InitiatingMessage message
+  */
+  function f_send_S1AP_initiatingMessage(
+    in template (value) InitiatingMessage p_initiatingMessage,
+    in template (value) Criticality p_criticality := reject
+  ) runs on S1APComponent {
+    f_send_S1AP_PDU( {initiatingMessage := p_initiatingMessage})
+  } // End of function f_send_S1AP_initiatingMessage
+
+  /**
+  * @desc Send S1AP PDU with SuccessfulOutcome payload from protocol port
+  * @param p_successfulOutcome Send value template for SuccessfulOutcome message
+  */
+  function f_send_S1AP_successfulOutcome(
+    in template (value) SuccessfulOutcome p_successfulOutcome
+  ) runs on S1APComponent {
+    f_send_S1AP_PDU( {successfulOutcome := p_successfulOutcome})
+  } // End of function f_send_S1AP_successfulOutcome
+
+  /**
+  * @desc Send S1AP PDU with UnsuccessfulOutcome payload from protocol port
+  * @param p_unsuccessfulOutcome Send value template for UnsuccessfulOutcome message
+  */
+  function f_send_S1AP_unsuccessfulOutcome(
+    in template (value) UnsuccessfulOutcome p_unsuccessfulOutcome
+  ) runs on S1APComponent {
+    f_send_S1AP_PDU( {unsuccessfulOutcome := p_unsuccessfulOutcome})
+  } // End of function f_send_S1AP_unsuccessfulOutcome 
+
+  /**
+  * @desc Send S1AP Message E-RAB_SetupRequest
+  * @param p_value Send template with IE for E-RAB_SetupRequest
+  */
+  function f_send_E_RABSetupRequest(in template (value) E_RABSetupRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_E_RABSetupRequest(p_value))
+  } // End of function f_send_E_RABSetupRequest
+
+  /**
+  * @desc Send S1AP Message E-RAB_SetupResponse
+  * @param p_value Send template with IE for E-RAB_SetupResponse
+  */
+  function f_send_E_RABSetupResponse(in template (value) E_RABSetupResponse p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_E_RABSetupResponse(p_value))
+  } // End of function f_send_E_RABSetupResponse
+
+  /**
+  * @desc Send S1AP Message E-RAB_ReleaseRequest
+  * @param p_value Send template with IE for E-RAB_ReleaseRequest
+  */
+  function f_send_E_RABReleaseRequest(in template (value) E_RABReleaseCommand p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_E_RABReleaseRequest(p_value))
+  } // End of function f_send_E_RABReleaseRequest
+
+  /**
+  * @desc Send S1AP Message E-RAB_ModifiedRequest
+  * @param p_value Send template with IE for E-RAB_ModifiedRequest
+  */
+  function f_send_E_RABModifiedRequest(in template (value) E_RABModifyRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_E_RABModifiedRequest(p_value))
+  } // End of function f_send_E_RABModifiedRequest
+
+  /**
+  * @desc Send S1AP Message E-RAB_ModifiedInd
+  * @param p_value Send template with IE for E-RAB_ModifiedInd
+  */
+  function f_send_E_RABModifiedInd(in template (value) E_RABModificationIndication p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_E_RABModifiedInd(p_value))
+  } // End of function f_send_E_RABModifiedInd
+
+  /**
+  * @desc Send S1AP Message InitialContext_SetupRequest
+  * @param p_value Send template with IE for InitialContext_SetupRequest
+  */
+  function f_send_InitialContext_SetupRequest(
+    in template (value) InitialContextSetupRequest p_value,
+    in template (value) Criticality p_criticality := reject
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(
+      m_InitialContextSetupRequest(
+        p_value,
+        p_criticality
+      ))
+  } // End of function f_send_InitialContext_SetupRequest
+
+  /**
+  * @desc Send S1AP Message f_send_HandoverRequired
+  * @param p_value Send template with IE for HandoverRequest
+  */
+  function f_send_HandoverRequired(in template (value) HandoverRequired p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_HandoverRequired(p_value))
+  } // End of function f_send_HandoverRequest
+
+  /**
+  * @desc Send S1AP Message f_send_HandoverRequest
+  * @param p_value Send template with IE for HandoverRequest
+  */
+  function f_send_HandoverRequest(in template (value) HandoverRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_HandoverRequest(p_value))
+  } // End of function f_send_HandoverRequest
+
+  /**
+  * @desc Send S1AP Message f_send_HandoverRequestAcknowledge
+  * @param p_value Send template with IE for HandoverRequestAcknowledge
+  */
+  function f_send_HandoverRequestAcknowledge(in template (value) HandoverRequestAcknowledge p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_HandoverRequestAcknowledge(p_value))
+  } // End of function f_send_HandoverRequestAcknowledge
+
+  /**
+  * @desc Send S1AP Message f_send_HandoverCancel
+  * @param p_value Send template with IE for HandoverCancel
+  */
+  function f_send_HandoverCancel(in template (value) HandoverCancel p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_HandoverCancel(p_value))
+  } // End of function f_send_HandoverCancel
+
+  /**
+  * @desc Send S1AP Message Handover Cancel Acknowledge
+  * @param p_value Send template with IE for Handover Cancel Acknowledge
+  */
+  function f_send_HandoverCancelAcknowledge(
+    in template (value) HandoverCancelAcknowledge p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_HandoverCancelAck(p_value))
+  } // End of function f_send_HandoverCancelAcknowledge
+
+  /**
+  * @desc Send S1AP Message ENB STATUS TRANSFER
+  * @param p_value Send template with IE for ENB STATUS TRANSFER 
+  */
+  function f_send_eNB_Status_Transfer(
+    in template (value) ENBStatusTransfer p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_eNB_Status_Transfer(p_value))
+  } // End of function f_send_eNB_Status_Transfer
+
+  /**
+  * @desc Send S1AP Message Handover Command
+  * @param p_value Send template with IE for Handover Command
+  */
+  function f_send_HandoverCommand(
+    in template (value) HandoverCommand p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_HandoverCommand(p_value))
+  } // End of function f_send_HandoverCommand
+
+  /**
+  * @desc Send S1AP Message Path Switch Request
+  * @param p_value Send template with IE for Path Switch Request
+  */
+  function f_send_PathSwitchRequest(
+    in template (value) PathSwitchRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_PathSwitchRequest(p_value))
+  } // End of function f_send_PathSwitchRequestAcknowledge
+
+  /**
+  * @desc Send S1AP Message Path Switch Request Acknowledge
+  * @param p_value Send template with IE for Path Switch Request Acknowledge
+  */
+  function f_send_PathSwitchRequestAcknowledge(
+    in template (value) PathSwitchRequestAcknowledge p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_PathSwitchRequestAck(p_value))
+  } // End of function f_send_PathSwitchRequestAcknowledge
+
+  /**
+  * @desc Send S1AP Message S1 SETUP RESPONSE
+  * @param p_value Send template with IE for S1 SETUP RESPONSE
+  */
+  function f_send_S1_Setup_Response(
+    in template (value) S1SetupResponse p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_s1_Setup_Response(p_value))
+  } // End of function f_send_S1_Setup_Response
+
+  /**
+  * @desc Send S1AP Message ENB CONFIGURATION UPDATE ACKNOWLEDGE
+  * @param p_value Send template with IE for ENB CONFIGURATION UPDATE ACKNOWLEDGE
+  */
+  function f_send_eNB_Configuration_Update_Acknowledge(
+    in template (value) ENBConfigurationUpdateAcknowledge p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_eNB_Configuration_Update_Acknowledge(p_value))
+  } // End of function f_send_eNB_Configuration_Update_Acknowledge
+
+  /**
+  * @desc Send S1AP Message RESET
+  * @param p_value Send template with IE for RESET
+  */
+  function f_send_Reset(
+    in template (value) Reset p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_reset(p_value))
+  } // End of function f_send_Reset
+
+  /**
+  * @desc Send S1AP Message S1 SETUP REQUEST
+  * @param p_value Send template with IE for S1 SETUP REQUEST
+  */
+  function f_send_S1_Setup_Request(
+    in template (value) S1SetupRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_s1_Setup_Request(p_value))
+  } // End of function f_send_S1_Setup_Request
+
+  /**
+  * @desc Send S1AP Message ENB CONFIGURATION UPDATE
+  * @param p_value Send template with IE for ENB CONFIGURATION UPDATE 
+  */
+  function f_send_eNB_Configuration_Update(
+    in template (value) ENBConfigurationUpdate p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_eNB_Configuration_Update(p_value))
+  } // End of function f_send_eNB_Configuration_Update
+
+  /**
+  * @desc Send S1AP Message MME CONFIGURATION UPDATE 
+  * @param p_value Send template with IE for MME CONFIGURATION UPDATE
+  */
+  function f_send_MME_Configuration_Update(
+    in template (value) MMEConfigurationUpdate p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_mME_Configuration_Update(p_value))
+  } // End of function f_send_MME_Configuration_Update
+
+  /**
+  * @desc Send S1AP Message TRACE START
+  * @param p_value Send template with IE for TRACE START
+  */
+  function f_send_Trace_Start(
+    in template (value) TraceStart p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_trace_Start(p_value))
+  } // End of function f_send_Trace_Start
+
+  /**
+  * @desc Send S1AP Message DEACTIVATE TRACE 
+  * @param p_value Send template with IE for DEACTIVATE TRACE
+  */
+  function f_send_deactivate_Trace(
+    in template (value) DeactivateTrace p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_deactivate_Trace(p_value))
+  } // End of function f_send_deactivate_Trace
+
+  /**
+  * @desc Send S1AP Message LOCATION REPORTING CONTROL
+  * @param p_value Send template with IE for LOCATION REPORTING CONTROL
+  */
+  function f_send_Location_Reporting_Control(
+    in template (value) LocationReportingControl p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_location_Reporting_Control(p_value))
+  } // End of function f_send_Location_Reporting_Control
+
+  /**
+  * @desc Send S1AP Message LOCATION REPORT FAILURE INDICATION
+  * @param p_value Receive template for LOCATION REPORT FAILURE INDICATION IEs
+  */
+  function f_send_Location_Report_Failure_Indication(
+    template (value) LocationReportingFailureIndication p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_location_Report_Failure_Indication(p_value))
+  } // End of f_send_Location_Report_Failure_Indication
+
+  /**
+  * @desc Send S1AP Message WRITE-REPLACE WARNING REQUEST
+  * @param p_value Send template with IE for WRITE-REPLACE WARNING REQUEST
+  */
+  function f_send_Write_Replace_Warning_Request(
+    in template (value) WriteReplaceWarningRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_write_Replace_Warning_Request(p_value))
+  } // End of function f_send_Write_Replace_Warning_Request
+
+  /**
+  * @desc Send S1AP Message WRITE-REPLACE WARNING RESPONSE
+  * @param p_value Send template with IE for WRITE-REPLACE WARNING RESPONSE
+  */
+  function f_send_Write_Replace_Warning_Response(
+    in template (value) WriteReplaceWarningResponse p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_write_Replace_Warning_Response(p_value))
+  } // End of function f_send_Write_Replace_Warning_Response
+
+  /**
+  * @desc Send S1AP Message KILL REQUEST
+  * @param p_value Send template with IE for KILL REQUEST
+  */
+  function f_send_Kill_Request(
+    in template (value) KillRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_kill_Request(p_value))
+  } // End of function f_send_Kill_Request
+
+  /**
+  * @desc Send S1AP Message KILL REQUEST
+  * @param p_value Send template with IE for KILL REQUEST
+  */
+  function f_send_Kill_Response(
+    in template (value) KillResponse p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_kill_Response(p_value))
+  } // End of function f_send_Kill_Response
+
+  /**
+  * @desc Send S1AP Message UE Context Release Command
+  * @param p_value Send template for UE CONTEXT RELEASE REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.6 UE CONTEXT RELEASE COMMAND
+  */
+  function f_send_UE_Context_Release_Command(
+    template (value) UEContextReleaseCommand p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeContextReleaseCommand(p_value))
+  } // End of f_send_UE_Context_Release_Command
+
+
+  /**
+  * @desc Send S1AP Message UE Context Release Complete
+  * @param p_value Send template for UE CONTEXT RELEASE COMPLETE
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.7 UE CONTEXT RELEASE COMPLETE
+  */
+  function f_send_UE_Context_Release_Complete(
+    template (value) UEContextReleaseComplete p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_successfulOutcome(m_UeContextReleaseComplete(p_value))
+  } // End of f_send_UE_Context_Release_Command
+
+  /**
+  * @desc Send S1AP Message UE Context Release Request
+  * @param p_value Receive template for UE CONTEXT RELEASE REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.5 UE CONTEXT RELEASE REQUEST
+  */
+  function f_send_UE_Context_Release_Request(
+    template (value) UEContextReleaseRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeContextReleaseRequest(p_value))
+  } // End of f_send_UE_Context_Release_Request
+
+  /**
+  * @desc Send S1AP Message UE Context Suspend Request
+  * @param p_value Receive template for UE CONTEXT SUSPEND REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.15 UE CONTEXT SUSPEND REQUEST
+  */
+  function f_send_UE_Context_Suspend_Request(
+    template (value) UEContextSuspendRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeContextSuspendRequest(p_value))
+  } // End of f_send_UE_Context_Suspend_Request
+
+  /**
+  * @desc Send S1AP Message UE Context Modification Request
+  * @param p_value Send template for UE CONTEXT MODIFICATION REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.8 UE CONTEXT MODIFICATION COMMAND
+  */
+  function f_send_UE_Context_Modification_Request(
+    template (value) UEContextModificationRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeContextModificationRequest(p_value))
+  } // End of f_send_UE_Context_Modification_Request
+
+
+  /**
+  * @desc Send S1AP Message UE Context Modification Indication
+  * @param p_value Send template for UE CONTEXT MODIFICATION INDICATION
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.13 UE CONTEXT MODIFICATION INDICATION
+  */
+  function f_send_UE_Context_Modification_Indication(
+    template (value) UEContextModificationIndication p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeContextModificationIndication(p_value))
+  } // End of f_send_UE_Context_Modification_Request
+
+  /**
+  * @desc Send S1AP Message UE Context Resume Request
+  * @param p_value Send template for UE CONTEXT RESUME REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.17 UE CONTEXT RESUME REQUEST
+  */
+  function f_send_Ue_Context_Resume_Request(
+    in template (value) UEContextResumeRequest p_value,
+    in template (value) Criticality p_criticality := reject
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(
+      m_UeContextResumeRequest(
+        p_value, 
+        p_criticality
+      )
+    )
+  } // End of f_send_UE_Context_Modification_Request
+
+  /**
+  * @desc Send S1AP Message UE Radio Capability Match Request
+  * @param p_value Send template for UE_RADIO_CAPABILITY_MATCH_REQUEST
+  * @see ETSI TS 136 413 V13.4.0 Clause 9.1.4.11 UE CONTEXT MODIFICATION COMMAND
+  */
+  function f_send_UE_Radio_Capability_Match_Request(
+    template (value) UERadioCapabilityMatchRequest p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_UeRadioCapabilityMatchRequest(p_value))
+  } // End of f_send_UE_Radio_Capability_Match_Request
+
+  /**
+  * @desc Send S1AP Message UPLINK NAS TRANSPORT
+  * @param p value Send template for UPLINK NAS TRANSPORT IEs
+  */
+  function f_send_Uplink_NAS_Transport(
+    template (value) UplinkNASTransport p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_uplink_nAS_Transport(p_value))
+  } // End of f_send_Uplink_NAS_Transport
+
+  /**
+  * @desc Send S1AP Message INITIAL UE MESSAGE
+  * @param p_value Receive template for INITIAL UE MESSAGE IEs
+  */
+  function f_send_Initial_UE_Message(
+    template (value) InitialUEMessage p_value
+  ) runs on S1APComponent {
+    f_send_S1AP_initiatingMessage(m_initial_uE_Message(p_value))
+  } // End of f_send_Initial_UE_Message
+
+} // End of group sendPDU
+
+/**
+* @desc Setup full procedure functions
+* @see ETSI TS 136 413 V13.4.0 Clause 8.1 List of S1AP Elementary procedures
+*/
+group fullProcedures {
+
+  /**
+  * @desc Setup a full E-RAB Setup procedure
+  */
+  function f_rABSetupRequest_recvResponse() runs on S1APComponent {
+    f_send_E_RABSetupRequest(m_E_RABSetupReqIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        /*{
+        m_E_RABToBeSetupItemBearerSUReq(1),
+        m_E_RABToBeSetupItemBearerSUReq(
+        2,
+        m_e_RABlevelQoSParameters
+        (255)
+        )
+        }*/
+        {
+          valueof(m_E_RABToBeSetupItemBearerSUReq(1)),
+          valueof(m_E_RABToBeSetupItemBearerSUReq(
+              2,
+              m_e_RABlevelQoSParameters
+              (255)
+            )) 
+        }
+      ));
+    f_recv_E_RABSetupResponse(mw_E_RABSetupResIEs_FailedToSetupList_E_RABSetupItemBearerSURes(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        {
+          mw_E_RABSetupItemBearerSURes(1)
+        },
+        {
+          mw_E_RABItem(
+            2,
+            {
+              radioNetwork :=not_supported_QCI_value
+            }
+          )
+        }
+      ));
+  } // End of function f_rABSetupRequest_recvResponse
+
+  /**
+  * @desc Setup a full E-RAB Setup procedure
+  */
+  function f_rABSetupRequest_sendResponse() runs on S1APComponent {
+
+
+    f_recv_E_RABSetupRequest(mw_E_RABSetupReqIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        { mw_E_RABToBeSetupItemBearerSUReq(?,?,?,?,?) }
+      ));
+    f_send_E_RABSetupResponse(m_E_RABSetupResIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        {m_E_RABSetupItemBearerSURes}
+      ));
+  } // End of function f_rABSetupRequest_sendResponse
+
+  /**
+  * @desc Setup an initial Context E-RAB Setup procedure
+  */
+  function f_rABInitialContextSetup(
+    in template (value) E_RABToBeSetupListCtxtSUReq p_RecordOf_E_RABToBeSetupItemCtxt_value
+  ) runs on S1APComponent {
+    f_send_InitialContext_SetupRequest(m_InitialContextSetupReqIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        m_UEAggregateMaximumBitrate(1,1),
+        p_RecordOf_E_RABToBeSetupItemCtxt_value,
+        m_UESecurityCapabilities(PX_ENCRYPTION_ALGORITHM,
+          PX_INTEGRITY_PROTECTION_ALGORITHM),
+        m_securityKey
+      ));
+
+    f_recv_InitialContext_SetupResponse(mw_InitialContextSetupResIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        {
+          valueof(mw_E_RABSetupItemCtxtSURes)
+        }
+      ));
+  } // End of function f_rABInitialContextSetup
+
+
+  /**
+  * @desc Setup a full E-RAB Release procedure
+  */
+  function f_rABSetupRelease() runs on S1APComponent {
+    // Local variables
+    const E_RAB_ID c_E_RAB_ID_A := 0;
+
+    f_send_E_RABReleaseRequest(m_E_RABReleaseReqIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        {
+          m_E_RABItem(
+            c_E_RAB_ID_A,
+            m_cause_ran(user_inactivity) 
+          )
+        }
+      ));
+
+    f_recv_E_RABReleaseResponse(mw_E_RABReleaseResIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        {
+          mw_E_RABItem(
+            c_E_RAB_ID_A
+          )
+        }
+      ));
+  } // End of function f_rABSetupRelease
+
+  /**
+  * @desc Initiate an Handover procedure
+  */
+  function f_initiate_handover() runs on S1APComponent {
+    // Local variables
+    const Source_ToTarget_TransparentContainer c_source_ToTarget_TransparentContainer := '12121212'O;
+
+    f_send_HandoverRequest(
+      m_HandoverReqIEs(
+        vc_MME_UE_ID,
+        intralte,                               // Handover Type
+        m_cause_ran(
+          successful_handover
+        ),                                      // Cause
+        m_UEAggregateMaximumBitrate(1,1),       // UE Aggregate_Max_Bit_Rate
+        m_E_RABToBeSetupListHOReq(m_E_RABToBeSetupItemHOReq (
+                -,
+                -,
+                -,
+                m_e_RABlevelQoSParameters (5)
+              )),                                      // E_RabsToBeSetupList
+        c_source_ToTarget_TransparentContainer, // SourceToTargetTransparentContainer
+        m_UESecurityCapabilities(
+          PX_ENCRYPTION_ALGORITHM,
+          PX_INTEGRITY_PROTECTION_ALGORITHM
+        ),                                      // UeSecurityCapabilities
+        m_securityContext                       // SecurityContext
+      ));
+  } // End of function f_initiate_handover
+
+  /**
+  * @desc Initiate a Trace Start procedure
+  */
+  function f_initiate_traceStart() runs on S1APComponent {
+    f_send_Trace_Start(
+      m_trace_StartIEs(
+        m_traceActivation(
+          PX_EUTRAN_TRACE_ID,
+          PX_INTERFACES_TO_TRACE,
+          PX_TRACE_DEPTH,
+          PX_TRANSPORT_LAYER_ADDRESS
+        )));
+  } // End of function f_initiate_traceStart
+
+  /**
+  * @desc Initiate a Deactivate Trace procedure
+  */
+  function f_initiate_deactivateTrace() runs on S1APComponent {
+    f_send_deactivate_Trace(
+      m_deactivate_TraceIEs(
+        vc_MME_UE_ID,
+        vc_eNB_UE_ID,
+        PX_EUTRAN_TRACE_ID
+      ));
+  } // End of function f_initiate_deactivateTrace
+
+  /**
+  * @desc Initiate a an Write-Replace Warning Request procedure
+  */
+  function f_writeReplaceWarningExchanges() runs on S1APComponent {
+    if (fx_MME_Write_Replace_Warning_procedure() == true) {
+      f_recv_Write_Replace_Warning_Request(
+        mw_write_Replace_Warning_RequestIEs(
+          PX_MESSAGE_IDENTIFIER,
+          PX_SERIAL_NUMBER,
+          PX_REPETITION_PERIOD, 
+          PX_NUMBER_OF_BROADCASTS_REQUESTED
+        ));
+      f_send_Write_Replace_Warning_Response(
+        m_write_Replace_Warning_ResponseIEs(
+          PX_MESSAGE_IDENTIFIER,
+          PX_SERIAL_NUMBER
+        ));
+      f_selfOrClientSyncAndVerdict(c_tbDone, f_getVerdict()); 
+    }
+  } // End of function f_writeReplaceWarningExchanges
+
+} // End of group fullProcedures
+
+group externalFunctions {  //External functions must be written separately,
+  //        Dummy implementations are in LibS1AP_TitanExtensions
+
+  group eNBRole {
+
+    /**
+    * @desc Trigger a Handover preparation procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Handover_preparation_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Handover notification procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Handover_notification_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Path switch request procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Path_switch_request_procedure() return boolean;
+
+    /**
+    * @desc Trigger an INITIAL UE MESSAGE procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Initiate_NAS_transport_procedure() return boolean;
+
+    /**
+    * @desc Trigger an INITIAL UE MESSAGE procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_NAS_transport_procedure() return boolean;
+
+    /**
+    * @desc Trigger an S1 SETUP procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_S1_Setup_Request_procedure() return boolean;
+
+    /**
+    * @desc Trigger an eNB Configuration Update procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Configuration_Update_procedure() return boolean;
+
+    /**
+    * @desc Trigger an an Overload Start procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Overload_Start_procedure() return boolean;
+
+    /**
+    * @desc Trigger an an Overload Stop procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Overload_Stop_procedure() return boolean;
+
+    /**
+    * @desc Trigger an Error Indication procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Error_Indication_procedure() return boolean;
+
+    /**
+    * @desc Trigger a RESET procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Reset_procedure() return boolean;
+
+    /**
+    * @desc Trigger a CDMA2000 to be forwarded procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Uplink_S1_CDMA2000_Tunnelling_procedure() return boolean;
+
+    /**
+    * @desc Trigger a UE CAPABILITY INFO INDICATION procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_UE_Capability_Info_Indication_procedure() return boolean;
+
+    /**
+    * @desc Force the UE to be registered to a new cell
+    * @return true on success, false otherwise
+    */
+    //external function fx_move_UE_to_new_cell() return boolean;
+
+    /**
+    * @desc Check htat UE stop reporting at change of serving cell
+    * @return true on success, false otherwise
+    */
+    //external function fx_check_UE_stops_reporting() return boolean;
+
+    /**
+    * @desc Trigger a PWS Restart Indication procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_PWS_Restart_Indication_procedure() return boolean;
+
+    /**
+    * @desc Trigger a PWS Failure Indication procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_PWS_Failure_Indication_procedure() return boolean;
+
+    /**
+    * @desc Trigger an ENB direct information Transfer procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Direct_Information_Transfer_procedure() return boolean;
+
+    /**
+    * @desc Trigger an ENB Configuration Transfer procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_Configuration_Transfer_procedure() return boolean;
+
+    /**
+    * @desc Trigger a LPPa Transport procedure using a UE associated signalling on eNodeB
+    * @param p_associated_signalling_mode Set to true for an associated signalling mode, false otherwise
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_LPPa_Transport_procedure_ind(in boolean p_associated_signalling_mode) return boolean;
+
+  } // End of group eNBRole
+
+  group mmeRole {
+
+    /**
+    * @desc Trigger a Handover preparation procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Handover_preparation_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Handover notification procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Handover_notification_procedure() return boolean;
+
+    /**
+    * @desc Trigger a PAGING event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Paging_procedure() return boolean;
+
+    /**
+    * @desc Trigger a DOWNLINK NAS TRANSPORT event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Downlink_NAS_Transport_procedure() return boolean;
+
+    /**
+    * @desc Trigger a REROUTE NAS REQUEST event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Reroute_NAS_Request_procedure() return boolean;
+
+    /**
+    * @desc Trigger a RESET event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Reset_procedure() return boolean;
+
+    /**
+    * @desc Trigger an ERROR INDICATION event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Error_Indication_procedure() return boolean;
+
+    /**
+    * @desc Trigger a CDMA2000 signalling event
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Downlink_S1_CDMA2000_Tunnelling_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Trace Start procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Trace_Start_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Deactivate Trace procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Deactivate_Trace_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Location Reporting Control procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Location_Reporting_Control_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Write-Replace Warning procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Write_Replace_Warning_procedure() return boolean;
+
+    /**
+    * @desc Trigger a Kill procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Kill_procedure() return boolean;
+
+    /**
+    * @desc Trigger an MME Direct Information Transfer procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Direct_Information_Transfer_procedure() return boolean;
+
+    /**
+    * @desc Trigger an MME Configuration Transfer procedure
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_Configuration_Transfer_procedure() return boolean;
+
+    /**
+    * @desc Trigger a LPPa Transport procedure using a UE associated signalling on MME
+    * @param p_associated_signalling_mode Set to true for an associated signalling mode, false otherwise
+    * @return true on success, false otherwise
+    */
+    //external function fx_MME_LPPa_Transport_procedure_ind(in boolean p_associated_signalling_mode) return boolean;
+
+    /**
+    * @desc Trigger a E-RAB Release procedure
+    * @param
+    * @return true on success, false otherwise
+    */
+    //external function fx_eNB_erab_Release_indication_procedure() return boolean;
+
+    //external function fx_eNB_erab_modification_indication_procedure () return boolean;
+
+  } // End of group mmeRole
+
+} // End of group externalFunctions
+
+group preambles {
+
+  group preamble_S1AP{
+
+    /**
+    * @desc 
+    * @verdict 
+    */
+    function f_preambleS1AP_MME()
+    runs on S1APComponent {
+      // Nothing to do
+    } // End of function f_preambleS1AP_MME
+
+    /**
+    * @desc 
+    * @verdict 
+    */
+    function f_preambleS1AP_eNB()
+    runs on S1APComponent {
+      // Nothing to do
+    } // End of function f_preambleS1AP_eNB
+
+  } // End of group preamble_S1AP
+
+} // End of group preambles
+
+group postambles {
+
+  group postamble_S1AP{
+
+    /**
+    * @desc 
+    * @verdict 
+    */
+    function f_postambleS1AP_eNB()
+    runs on S1APComponent {
+      // Nothing to do
+    } // End of function f_postambleS1AP_eNB
+
+    /**
+    * @desc 
+    * @verdict 
+    */
+    function f_postambleS1AP_MME()
+    runs on S1APComponent {
+      // Nothing to do
+    } // End of function f_postambleS1AP_MME
+
+  } // End of group postamble_S1AP
+
+} // End of group postambles
+
+/**
+* @desc Global 'altstep' statements description
+*/
+group globalSteps {
+
+  /**
+  *  @desc    This is a test step that init S1AP component
+  */
+  function f_S1AP_Init_Component()
+  runs on S1APComponent {
+    // Nothing to do
+  } // End of function  f_S1AP_Init_Component
+
+  /**
+  * @desc Component termination
+  */
+  function f_S1AP_terminate_component()
+  runs on S1APComponent {
+
+    log("component terminated - forced!");
+    deactivate;
+    stop;
+  } // End of function f_S1AP_terminate_component
+
+  /**
+  * @desc Component termination
+  */
+  function f_componentStop()
+  runs on S1APComponent {
+
+    syncPort.send(m_syncClientStop);
+    S1_MMEeNB_P.clear;
+    stop;
+  } // End of function f_componentStop
+
+  /**
+  * @desc Original copied from older LibCommon_VerdictControl
+  */
+  function f_getVerdict() // FIXME Are you sure we really need it???
+  return FncRetCode {
+
+    var FncRetCode v_ret := e_error;
+    if (getverdict == pass or getverdict == none) {
+      v_ret := e_success;
+    }
+    return v_ret;
+  } // End of function 
+
+} // End of group globalSteps
+
+/**
+* @desc Default 'altstep' statements description
+*/
+group defaultsTestStep {
+
+  /**
+  * @desc 
+  * @verdict 
+  */
+  altstep a_defaultS1AP()
+  runs on S1APComponent {
+    [] any timer.timeout {
+      all timer.stop;
+      if (vc_serverStop==false) {
+        f_selfOrClientSyncAndVerdict("error", e_timeout);
+      }
+      else {
+        stop;
+      }
+    }
+    [] S1_MMEeNB_P.receive (S1AP_PDU:{initiatingMessage := ?}) -> value vc_recvS1AP_PDUDefault {
+      repeat;
+    }
+    [] S1_MMEeNB_P.receive (S1AP_PDU:{successfulOutcome := ?}) -> value vc_recvS1AP_PDUDefault {
+      repeat;
+    }
+    [] S1_MMEeNB_P.receive (S1AP_PDU:{unsuccessfulOutcome := ?}) -> value vc_recvS1AP_PDUDefault {
+      repeat;
+    }
+    [] S1_MMEeNB_P.receive (S1AP_PDU:?) -> value vc_recvS1AP_PDUDefault {
+      if (vc_serverStop==false) {
+        f_selfOrClientSyncAndVerdict("error", e_error);
+      }
+      else {
+        stop;
+      }
+    }
+    [] S1_MMEeNB_P.receive {
+      if (vc_serverStop==false) {
+        f_selfOrClientSyncAndVerdict("error", e_error);
+      }
+      else {
+        stop;
+      }
+    }
+    [] a_shutdown() {
+      // Process temination on error
+      log("*** a_defaultS1AP() : Process temination on error ***");
+      // Terminate component execution
+      stop;
+    }
+  } // End of altstep a_defaultS1AP
+
+  altstep a_defaultS1AP_MME()
+  runs on S1APComponent {
+    [] any timer.timeout {
+      all timer.stop;
+      if (vc_serverStop==false) {
+        f_selfOrClientSyncAndVerdict("error", e_timeout);
+      }
+      else {
+        stop;
+      }
+    }
+    // Note: possible unscollicited messages should be filtered
+  } // End of altstep a_defaultS1AP_MME
+
+  altstep a_defaultS1AP_eNB()
+  runs on S1APComponent {
+    [] any timer.timeout {
+      all timer.stop;
+      if (vc_serverStop==false) {
+        f_selfOrClientSyncAndVerdict("error", e_timeout);
+      }
+      else {
+        stop;
+      }
+    }
+    // Note: possible unscollicited messages should be filtered
+  } // End of altstep a_defaultS1AP_eNB
+
+} // End of group defaultsTestStep
+
+} // End of module LibS1AP_Steps

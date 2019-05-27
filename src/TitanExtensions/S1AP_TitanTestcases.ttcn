@@ -1,0 +1,73 @@
+module S1AP_TitanTestcases {
+
+import from LibCommon_Sync all;
+import from LibS1AP_Interface all;
+import from LibS1AP_Steps all;
+import from LibS1AP_Templates all;
+import from IPL4asp_PortType all;
+
+//import from S1AP_TCFunctions all;
+
+type component TitanMME extends ServerSyncComp, S1APComponent {}
+type component TitaneNB extends ServerSyncComp, S1APComponent {
+  port IPL4asp_PT ipl4;
+}
+
+testcase TitanS1APConnect() runs on TitanMME system TitaneNB {
+  var TitanMME mme := TitanMME.create;
+  var TitaneNB eNB := TitaneNB.create;
+  
+  map(self:S1_MMEeNB_P, eNB:ipl4);
+  connect(mme:syncPort, eNB:syncPort);
+  connect(mme:syncSendPort, eNB:syncSendPort);
+  mme.start(  f_mme());
+  eNB.start(  f_eNB());
+  
+  disconnect(mme:syncSendPort, eNB:syncSendPort);
+  disconnect(mme:syncPort, eNB:syncPort);
+  unmap(mme:S1_MMEeNB_P, eNB:ipl4);
+}
+
+function f_mme() runs on S1APComponent {
+        f_recv_E_RABSetupRequest(mw_E_RABSetupReqIEs(
+          vc_MME_UE_ID,
+          vc_eNB_UE_ID,
+          { mw_E_RABToBeSetupItemBearerSUReq(?,?,?,?,?) }
+        ));
+
+      // Postamble                                
+      f_send_E_RABSetupResponse(m_E_RABSetupResIEs(
+          vc_MME_UE_ID,
+          vc_eNB_UE_ID,
+          {m_E_RABSetupItemBearerSURes}
+        ));  
+}
+
+function f_eNB() runs on S1APComponent {
+        f_send_E_RABSetupRequest(m_E_RABSetupReqIEs(
+          vc_MME_UE_ID,
+          vc_eNB_UE_ID,
+          {m_E_RABToBeSetupItemBearerSUReq (
+              -,
+              m_e_RABlevelQoSParameters
+              (5)
+            )}
+        ));
+
+      f_recv_E_RABSetupResponse(mw_E_RABSetupResIEs(
+          vc_MME_UE_ID,
+          vc_eNB_UE_ID,
+          {
+            mw_E_RABSetupItemBearerSURes
+          }
+        ));
+  
+}
+
+
+control {
+  execute(TitanS1APConnect());
+  
+}
+}
+

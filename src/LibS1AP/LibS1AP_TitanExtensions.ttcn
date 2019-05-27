@@ -1,0 +1,100 @@
+module LibS1AP_TitanExtensions {
+
+// LibS1AP
+//import from LibS1AP_Interface all;
+
+//import from S1AP_CommonDataTypes language "ASN.1:1997" all;
+import from S1AP_PDU_Descriptions language "ASN.1:1997" all;
+
+import from S1AP_Types all;
+
+//IPL4 port
+import from IPL4asp_Types all;
+
+import from S1AP_TestCases all;
+
+/*
+	template (value) InitiatingMessage m_HandoverRequired(template (value) HandoverRequired p_value) := {
+       procedureCode := id_HandoverPreparation,
+       criticality := reject,
+       value_ := {HandoverRequired := p_value}
+	}
+	*/
+
+function fx_eNB_Handover_preparation_procedure() return boolean {return true}
+function fx_eNB_Handover_notification_procedure() return boolean {return true}
+function fx_eNB_Path_switch_request_procedure() return boolean {return true}
+function fx_eNB_Initiate_NAS_transport_procedure() return boolean {return true}
+function fx_eNB_NAS_transport_procedure() return boolean {return true}
+function fx_eNB_S1_Setup_Request_procedure() return boolean {return true}
+function fx_eNB_Configuration_Update_procedure() return boolean {return true}
+function fx_eNB_Overload_Start_procedure() return boolean {return true}
+function fx_eNB_Overload_Stop_procedure() return boolean {return true}
+function fx_eNB_Error_Indication_procedure() return boolean {return true}
+function fx_eNB_Reset_procedure() return boolean {return true}
+function fx_eNB_Uplink_S1_CDMA2000_Tunnelling_procedure() return boolean {return true}
+function fx_eNB_UE_Capability_Info_Indication_procedure() return boolean {return true}
+function fx_move_UE_to_new_cell() return boolean {return true}
+function fx_check_UE_stops_reporting() return boolean {return true}
+function fx_eNB_PWS_Restart_Indication_procedure() return boolean {return true}
+function fx_eNB_PWS_Failure_Indication_procedure() return boolean {return true}
+function fx_eNB_Direct_Information_Transfer_procedure() return boolean {return true}
+function fx_eNB_Configuration_Transfer_procedure() return boolean {return true}
+function fx_eNB_LPPa_Transport_procedure_ind(boolean b) return boolean {return true}
+function fx_MME_Handover_preparation_procedure() return boolean {return true}
+function fx_MME_Handover_notification_procedure() return boolean {return true}
+function fx_MME_Paging_procedure() return boolean {return true}
+function fx_MME_Downlink_NAS_Transport_procedure() return boolean {return true}
+function fx_MME_Reroute_NAS_Request_procedure() return boolean {return true}
+function fx_MME_Reset_procedure() return boolean {return true}
+function fx_MME_Error_Indication_procedure() return boolean {return true}
+function fx_MME_Downlink_S1_CDMA2000_Tunnelling_procedure() return boolean {return true}
+function fx_MME_Trace_Start_procedure() return boolean {return true}
+function fx_MME_Deactivate_Trace_procedure() return boolean {return true}
+function fx_MME_Location_Reporting_Control_procedure() return boolean {return true}
+function fx_MME_Write_Replace_Warning_procedure() return boolean {return true}
+function fx_MME_Kill_procedure() return boolean {return true}
+function fx_MME_Direct_Information_Transfer_procedure() return boolean {return true}
+function fx_MME_Configuration_Transfer_procedure() return boolean {return true}
+function fx_MME_LPPa_Transport_procedure_ind(boolean b)  return boolean {return true}
+function fx_eNB_erab_Release_indication_procedure() return boolean {return true}
+function fx_eNB_erab_modification_indication_procedure() return boolean {return true}
+	
+//Port mapping functions
+
+type record S1AP_PDUWithConnId {
+          S1AP_PDU pdu,
+          integer connId
+        }
+        
+
+function f_S1AP_PDU_To_ASP_SendTo(in S1AP_PDUWithConnId pduCId, out ASP_SendTo asp){
+  asp.msg := enc_S1AP_PDU(pduCId.pdu);
+  asp.proto := {tcp := {}};
+  asp.remName := "131.160.182.81";
+  asp.remPort := 3868;
+  asp.connId := pduCId.connId;
+  port.setstate(0);
+}with {extension "prototype(fast)" } 
+	
+function f_ASP_RecvFrom_To_S1AP_PDU(in ASP_RecvFrom asp, out S1AP_PDU pdu) {
+  	//decode asp here
+ 	pdu := dec_S1AP_PDU(asp.msg);
+	port.setstate(0);
+}with {extension "prototype(fast)" }
+/*
+function f_S1AP_PDU_To_octetstring(in S1AP_PDU pdu, out octetstring os){
+  os := enc_S1AP_PDU(pdu);
+}with {extension "prototype(fast)" } 
+	
+function f_octetstring_To_S1AP_PDU(in octetstring os, out S1AP_PDU pdu) {
+  	//decode asp here
+ 	pdu := dec_S1AP_PDU(os);
+}with {extension "prototype(fast)" }
+*/
+
+control {
+  execute(TC_S1AP_eNB_RAB_01());
+}
+
+}
